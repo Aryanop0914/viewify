@@ -45,24 +45,25 @@ const Navbar = () => {
             setIsOpen(false);
          }
       };
-      toggleTheme();
+      // toggleTheme();
       window.addEventListener('resize', handleResize);
       return () => {
          window.removeEventListener('resize', handleResize);
       };
    }, []);
-   const loggedOut = () => {
-      setIsLoggedIn(!isLoggedIn);
-   };
    return (
-      <header className="bg-dark-background sticky top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between border-gray-500 p-6  ">
+      <header className="bg-dark-background border-2 top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between border-gray-500 p-4  ">
          <div className="flex items-center">
             <div className="flex logo h-10 w-10 items-center">
                <Play size={30} color="red" strokeWidth={3} />
             </div>
             <h1 className="text-xlhover:italic">Viewify</h1>
          </div>
-         <Input className="w-1/3" id="search" placeholder="Search" />
+         <Input
+            className="w-1/3  max-sm:hidden"
+            id="search"
+            placeholder="Search"
+         />
          <nav className="flex w-1/3 justify-end items-center">
             <div className="hidden w-full justify-around md:flex">
                <NavLinks />
@@ -117,6 +118,11 @@ const Navbar = () => {
                </Button>
             )}
          </div>
+         <Input
+            className="w-full mt-2 sm:hidden"
+            id="search"
+            placeholder="Search"
+         />
       </header>
    );
 };
