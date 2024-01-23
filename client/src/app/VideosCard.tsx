@@ -14,7 +14,7 @@ const VideosCard = () => {
          <div className="grid grid-cols-1 min-[600px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {arrUser.map((video) => (
                <Card
-                  className="w-[365px] mx-auto mt-2 min-[600px]:w-[300px] md:w-[370px] lg:w-[350px] xl:w-[370px]"
+                  className="border-0 shadow-none w-[365px] mx-auto mt-2 min-[600px]:w-[300px] md:w-[370px] lg:w-[350px] xl:w-[370px]"
                   key={video.id}
                >
                   <CardContent className="mt-6">

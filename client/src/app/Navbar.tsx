@@ -52,7 +52,7 @@ const Navbar = () => {
       };
    }, []);
    return (
-      <header className="bg-dark-background border-2 top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between border-gray-500 p-4  ">
+      <header className="bg-background top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between p-4 text-foreground ">
          <div className="flex items-center">
             <div className="flex logo h-10 w-10 items-center">
                <Play size={30} color="red" strokeWidth={3} />
@@ -102,7 +102,7 @@ const Navbar = () => {
                      <DropdownMenuItem
                         onClick={() => setIsLoggedIn(!isLoggedIn)}
                      >
-                        <div className="flex justify-between items-center ">
+                        <div className="flex justify-between items-center">
                            <div className="mr-10">Logout</div>
                            <LogOut size={20} strokeWidth={3} />
                         </div>
@@ -111,7 +111,8 @@ const Navbar = () => {
                </DropdownMenu>
             ) : (
                <Button
-                  variant="outline"
+                  variant="default"
+                  className="text-base"
                   onClick={() => setIsLoggedIn(!isLoggedIn)}
                >
                   Login
