@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { AlignJustify, Play, Lightbulb, LogOut } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Toggle } from '@/components/ui/toggle';
@@ -13,6 +13,7 @@ import {
    DropdownMenuSeparator,
    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const NavLinks = () => {
    return (
@@ -22,6 +23,7 @@ const NavLinks = () => {
    );
 };
 const Navbar = () => {
+   const navigate = useNavigate();
    const [isOpen, setIsOpen] = useState(false);
    const [isLoggedIn, setIsLoggedIn] = useState(true);
    //true--dark false--light
@@ -55,7 +57,7 @@ const Navbar = () => {
       <header className="bg-background top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between p-4 text-foreground ">
          <div className="flex items-center">
             <div className="flex logo h-10 w-10 items-center">
-               <Play size={30} color="red" strokeWidth={3} />
+               <Play size={30} className="text-primary" strokeWidth={3} />
             </div>
             <h1 className="text-xlhover:italic">Viewify</h1>
          </div>
@@ -85,11 +87,10 @@ const Navbar = () => {
             {isLoggedIn ? (
                <DropdownMenu>
                   <DropdownMenuTrigger>
-                     <img
-                        className="h-12 w-12 rounded-full"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        alt=""
-                     />
+                     <Avatar>
+                        <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
+                        <AvatarFallback>CN</AvatarFallback>
+                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                      <DropdownMenuLabel>My Account</DropdownMenuLabel>
@@ -113,7 +114,9 @@ const Navbar = () => {
                <Button
                   variant="default"
                   className="text-base"
-                  onClick={() => setIsLoggedIn(!isLoggedIn)}
+                  onClick={() => {
+                     navigate('/login');
+                  }}
                >
                   Login
                </Button>
