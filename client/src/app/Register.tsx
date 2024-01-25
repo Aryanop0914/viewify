@@ -69,12 +69,9 @@ const Register = () => {
                         <FormItem>
                            <FormLabel className="text-lg">Email</FormLabel>
                            <FormControl>
-                              <Input
-                                 placeholder="Enter Your Email"
-                                 {...field}
-                              />
+                              <Input {...field} />
                            </FormControl>
-                           <FormDescription>
+                           <FormDescription className="text-primary">
                               This email will be used to create Account.
                            </FormDescription>
                            <FormMessage />
@@ -88,12 +85,12 @@ const Register = () => {
                         <FormItem>
                            <FormLabel className="text-lg">Password</FormLabel>
                            <FormControl>
-                              <Input
-                                 type="password"
-                                 placeholder="Enter Your Password"
-                                 {...field}
-                              />
+                              <Input type="password" {...field} />
                            </FormControl>
+                           <FormDescription className="text-primary">
+                              Enter a password which must contains atleast 8
+                              characters.
+                           </FormDescription>
                            <FormMessage />
                         </FormItem>
                      )}
@@ -107,11 +104,7 @@ const Register = () => {
                               Confirm Password
                            </FormLabel>
                            <FormControl>
-                              <Input
-                                 type="password"
-                                 placeholder="Confirm Password"
-                                 {...field}
-                              />
+                              <Input type="password" {...field} />
                            </FormControl>
                            <FormMessage />
                         </FormItem>

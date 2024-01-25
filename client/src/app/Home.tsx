@@ -1,10 +1,10 @@
+import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
-import VideosCard from './VideosCard';
 const Home = () => {
    return (
       <div>
          <Navbar />
-         <VideosCard />
+         <Outlet />
       </div>
    );
 };

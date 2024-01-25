@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { AlignJustify, Play, Lightbulb, LogOut } from 'lucide-react';
+import {
+   AlignJustify,
+   Play,
+   Lightbulb,
+   LogOut,
+   Settings,
+   User,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Toggle } from '@/components/ui/toggle';
 import { useTheme } from '@/components/theme-provider';
@@ -93,19 +100,26 @@ const Navbar = () => {
                      </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                     <DropdownMenuItem onClick={() => navigate('/settings')}>
+                        <div className="flex justify-between items-center">
+                           <div className="mr-6">My Profile</div>
+                           <User size={20} strokeWidth={2} />
+                        </div>
+                     </DropdownMenuItem>
                      <DropdownMenuSeparator />
-                     <DropdownMenuItem>Profile</DropdownMenuItem>
-                     <DropdownMenuItem>Billing</DropdownMenuItem>
-                     <DropdownMenuItem>Team</DropdownMenuItem>
-                     <DropdownMenuItem>Subscription</DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => navigate('/settings')}>
+                        <div className="flex justify-between items-center">
+                           <div className="mr-9">Settings</div>
+                           <Settings size={20} strokeWidth={2} />
+                        </div>
+                     </DropdownMenuItem>
                      <DropdownMenuSeparator />
                      <DropdownMenuItem
                         onClick={() => setIsLoggedIn(!isLoggedIn)}
                      >
                         <div className="flex justify-between items-center">
-                           <div className="mr-10">Logout</div>
-                           <LogOut size={20} strokeWidth={3} />
+                           <div className="mr-11">Logout</div>
+                           <LogOut size={20} strokeWidth={2} />
                         </div>
                      </DropdownMenuItem>
                   </DropdownMenuContent>

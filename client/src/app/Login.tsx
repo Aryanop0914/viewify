@@ -62,15 +62,8 @@ const Login = () => {
                         <FormItem>
                            <FormLabel className="text-lg">Email</FormLabel>
                            <FormControl>
-                              <Input
-                                 type="email"
-                                 placeholder="Enter Your Email"
-                                 {...field}
-                              />
+                              <Input type="email" {...field} />
                            </FormControl>
-                           <FormDescription>
-                              This email will be used to create Account.
-                           </FormDescription>
                            <FormMessage />
                         </FormItem>
                      )}
@@ -82,11 +75,7 @@ const Login = () => {
                         <FormItem>
                            <FormLabel className="text-lg">Password</FormLabel>
                            <FormControl>
-                              <Input
-                                 type="password"
-                                 placeholder="Enter Your Password"
-                                 {...field}
-                              />
+                              <Input type="password" {...field} />
                            </FormControl>
                            <FormMessage />
                         </FormItem>
