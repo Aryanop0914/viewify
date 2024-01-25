@@ -20,9 +20,11 @@ const Uploads = () => {
                name="avatar"
                render={({ field }) => (
                   <FormItem>
-                     <FormLabel>Channel Name</FormLabel>
+                     <FormLabel className="text-xl">
+                        Upload Your Avatar
+                     </FormLabel>
                      <FormControl>
-                        <Input type="file" />
+                        <Input type="file" {...field} />
                      </FormControl>
                      <FormDescription>
                         This image will be used as Channels Avatar.
@@ -35,9 +37,11 @@ const Uploads = () => {
                name="coverImage"
                render={({ field }) => (
                   <FormItem>
-                     <FormLabel>Channel Name</FormLabel>
+                     <FormLabel className="text-xl">
+                        Upload Your Cover Image
+                     </FormLabel>
                      <FormControl>
-                        <Input type="file" />
+                        <Input type="file" {...field} />
                      </FormControl>
                      <FormDescription>
                         This image will be used as CoverImage.
@@ -46,7 +50,7 @@ const Uploads = () => {
                   </FormItem>
                )}
             />
-            <Button type="submit">Update profile</Button>
+            <Button type="submit">Upload</Button>
          </form>
       </Form>
    );

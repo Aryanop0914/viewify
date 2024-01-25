@@ -1,4 +1,4 @@
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -31,7 +31,7 @@ const Settings = () => {
    return (
       <>
          <div className="w-full h-screen">
-            <div className=" space-y-6 p-10 pb-16 sm:block border-2 rounded-md m-4">
+            <div className="space-y-6 p-10 pb-16 sm:block border-2 rounded-md m-4">
                <div className="space-y-0.5">
                   <h2 className="text-2xl font-bold tracking-tight">
                      Settings

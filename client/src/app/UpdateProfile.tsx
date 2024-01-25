@@ -65,7 +65,7 @@ const UpdateProfile = () => {
                name="username"
                render={({ field }) => (
                   <FormItem>
-                     <FormLabel>Channel Name</FormLabel>
+                     <FormLabel className="text-xl">Channel Name</FormLabel>
                      <FormControl>
                         <Input placeholder="shadcn" {...field} />
                      </FormControl>
@@ -83,7 +83,7 @@ const UpdateProfile = () => {
                name="bio"
                render={({ field }) => (
                   <FormItem>
-                     <FormLabel>Bio</FormLabel>
+                     <FormLabel className="text-xl">Bio</FormLabel>
                      <FormControl>
                         <Textarea
                            placeholder="Tell us a little bit about yourself"
@@ -104,7 +104,7 @@ const UpdateProfile = () => {
                name="dob"
                render={({ field }) => (
                   <FormItem className="flex flex-col">
-                     <FormLabel>Date of birth</FormLabel>
+                     <FormLabel className="text-xl">Date of birth</FormLabel>
                      <Popover>
                         <PopoverTrigger asChild>
                            <FormControl>

@@ -12,14 +12,14 @@ import arrUser from './data';
 const VideosCard = () => {
    return (
       <>
-         <div className="grid grid-cols-1 min-[600px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+         <div className="grid grid-cols-1 min-[600px]:grid-cols-2 lg:grid-cols-3">
             {arrUser.map((video) => (
                <Card
-                  className="border-0 shadow-none w-[365px] mx-auto mt-2 min-[600px]:w-[300px] md:w-[370px] lg:w-[350px] xl:w-[370px]"
+                  className="border-0 shadow-none mx-auto mt-2 max-[470px]:w-full max-[600px]:w-[430px] min-[600px]:w-full"
                   key={video.id}
                >
                   <CardContent className="mt-6">
-                     <AspectRatio ratio={16 / 8} className="bg-muted">
+                     <AspectRatio ratio={16 / 9} className="bg-muted">
                         <img
                            src={video.image}
                            alt="Photo by Drew Beamer"
@@ -33,15 +33,15 @@ const VideosCard = () => {
                         <AvatarFallback>CN</AvatarFallback>
                      </Avatar>
                      <CardHeader>
-                        <CardTitle className="text-xl">{video.title}</CardTitle>
+                        <CardTitle className="text-lg">{video.title}</CardTitle>
                         <CardDescription>{video.channelName}</CardDescription>
-                        <CardDescription>
-                           <div className="flex items-center ">
-                              <h1>{video.views} Views </h1>
-                              <Dot size={20} strokeWidth={3} className="m-1" />
-                              <h1> {video.published}</h1>
-                           </div>
-                        </CardDescription>
+                        <div className="flex items-center ">
+                           <CardDescription>
+                              {video.views} Views
+                           </CardDescription>
+                           <Dot size={20} strokeWidth={3} className="m-1" />
+                           <CardDescription> {video.published}</CardDescription>
+                        </div>
                      </CardHeader>
                   </div>
                </Card>
