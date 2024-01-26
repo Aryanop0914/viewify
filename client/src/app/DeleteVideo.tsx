@@ -32,17 +32,24 @@ const DeleteVideo = () => {
                   <div className="flex p-3 items-center">
                      <CardHeader>
                         <CardTitle className="text-lg">{video.title}</CardTitle>
-                        <div className="flex items-center ">
-                           <CardDescription>
-                              {video.views} Views
-                           </CardDescription>
-                           <Dot size={20} strokeWidth={3} className="m-1" />
-                           <CardDescription> {video.published}</CardDescription>
-                           <Trash2
-                              strokeWidth={2}
-                              color="red"
-                              className="ml-3"
-                           />
+                        <div className="flex items-center">
+                           <div className="basis-4/5 flex items-center ">
+                              <CardDescription>
+                                 {video.views} Views
+                              </CardDescription>
+                              <Dot size={20} strokeWidth={3} className="m-1" />
+                              <CardDescription>
+                                 {' '}
+                                 {video.published}
+                              </CardDescription>
+                           </div>
+                           <div className="basis-1/5">
+                              <Trash2
+                                 strokeWidth={2}
+                                 color="red"
+                                 className="ml-3"
+                              />
+                           </div>
                         </div>
                      </CardHeader>
                   </div>

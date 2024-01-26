@@ -14,7 +14,7 @@ const Landing = () => {
                   <Sidebar />
                </ResizablePanel>
                <ResizableHandle />
-               <ResizablePanel defaultSize={85} maxSize={90}>
+               <ResizablePanel defaultSize={90} maxSize={90}>
                   <Outlet />
                </ResizablePanel>
             </ResizablePanelGroup>

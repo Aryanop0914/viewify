@@ -55,7 +55,7 @@ const Navbar = () => {
             setIsOpen(false);
          }
       };
-      // toggleTheme();
+      toggleTheme();
       window.addEventListener('resize', handleResize);
       return () => {
          window.removeEventListener('resize', handleResize);

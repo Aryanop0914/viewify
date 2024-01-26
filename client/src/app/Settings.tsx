@@ -13,6 +13,7 @@ const Nav = () => {
       <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
          {items.map((item) => (
             <NavLink
+               key={item.href}
                to={item.href}
                className={cn(
                   buttonVariants({ variant: 'ghost' }),
