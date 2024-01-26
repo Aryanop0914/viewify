@@ -10,10 +10,6 @@ const Sidebar = () => {
          title: 'Home',
       },
       {
-         href: '/profile',
-         title: 'Profile',
-      },
-      {
          href: '/settings',
          title: 'Settings',
       },

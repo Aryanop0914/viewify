@@ -119,7 +119,9 @@ const Register = () => {
                </form>
                <div className="flex justify-between items-center">
                   <Separator className="w-1/4 " />
-                  <p className="text-muted-foreground">OR CONTINUE WITH</p>
+                  <p className="text-muted-foreground text-sm md:text-md">
+                     OR CONTINUE WITH
+                  </p>
                   <Separator className="w-1/4" />
                </div>
                <Button type="submit" className="w-full">

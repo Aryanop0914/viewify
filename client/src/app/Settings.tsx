@@ -7,6 +7,7 @@ const Nav = () => {
    const items = [
       { href: '/settings', title: 'Profile' },
       { href: '/settings/uploads', title: 'Uploads' },
+      { href: '/settings/delete-video', title: 'Delete Video' },
    ];
    return (
       <nav className="flex space-x-2 lg:flex-col lg:space-x-0 lg:space-y-1">
@@ -30,7 +31,7 @@ const Nav = () => {
 const Settings = () => {
    return (
       <>
-         <div className="w-full h-screen">
+         <div className="w-full h-max">
             <div className="space-y-6 p-10 pb-16 sm:block border-2 rounded-md m-4">
                <div className="space-y-0.5">
                   <h2 className="text-2xl font-bold tracking-tight">
@@ -46,7 +47,7 @@ const Settings = () => {
                      <Nav />
                   </aside>
                   <Separator orientation="vertical" />
-                  <div className="flex-1 lg:max-w-2xl">
+                  <div className="flex-1 w-full">
                      <Outlet />
                   </div>
                </div>

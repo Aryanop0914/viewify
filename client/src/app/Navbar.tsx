@@ -24,7 +24,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 const NavLinks = () => {
    return (
       <>
-         <NavLink to="/">Home</NavLink>
+         <NavLink to="/" className="bg-mutant-foreground">
+            Home
+         </NavLink>
       </>
    );
 };
@@ -76,7 +78,7 @@ const Navbar = () => {
             <div className="hidden w-full justify-around md:flex">
                <NavLinks />
             </div>
-            <div className="justify-end md:hidden">
+            <div className="justify-end md:hidden mr-2">
                <AlignJustify onClick={toggleNavbar} className="bg-background" />
             </div>
             <Toggle aria-label="Toggle bold" onClick={toggleTheme}>
@@ -84,57 +86,53 @@ const Navbar = () => {
                <h1 className="text-base">{theme1 ? 'Dark' : 'Light'}</h1>
             </Toggle>
          </nav>
+         {isLoggedIn ? (
+            <DropdownMenu>
+               <DropdownMenuTrigger>
+                  <Avatar>
+                     <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
+                     <AvatarFallback>Avatar</AvatarFallback>
+                  </Avatar>
+               </DropdownMenuTrigger>
+               <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => navigate('/profile/1234')}>
+                     <div className="flex justify-between items-center">
+                        <div className="mr-6">My Profile</div>
+                        <User size={20} strokeWidth={2} />
+                     </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/settings')}>
+                     <div className="flex justify-between items-center">
+                        <div className="mr-9">Settings</div>
+                        <Settings size={20} strokeWidth={2} />
+                     </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setIsLoggedIn(!isLoggedIn)}>
+                     <div className="flex justify-between items-center">
+                        <div className="mr-11">Logout</div>
+                        <LogOut size={20} strokeWidth={2} />
+                     </div>
+                  </DropdownMenuItem>
+               </DropdownMenuContent>
+            </DropdownMenu>
+         ) : (
+            <Button
+               variant="default"
+               className="text-base"
+               onClick={() => {
+                  navigate('/login');
+               }}
+            >
+               Login
+            </Button>
+         )}
          {isOpen && (
-            <div className="flex flex-col items-center basis-full">
+            <div className="flex flex-col items-center my-3 basis-full">
                <NavLinks />
             </div>
          )}
-         <div className="flex items-center">
-            {isLoggedIn ? (
-               <DropdownMenu>
-                  <DropdownMenuTrigger>
-                     <Avatar>
-                        <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
-                        <AvatarFallback>Avatar</AvatarFallback>
-                     </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                     <DropdownMenuItem onClick={() => navigate('/profile')}>
-                        <div className="flex justify-between items-center">
-                           <div className="mr-6">My Profile</div>
-                           <User size={20} strokeWidth={2} />
-                        </div>
-                     </DropdownMenuItem>
-                     <DropdownMenuSeparator />
-                     <DropdownMenuItem onClick={() => navigate('/settings')}>
-                        <div className="flex justify-between items-center">
-                           <div className="mr-9">Settings</div>
-                           <Settings size={20} strokeWidth={2} />
-                        </div>
-                     </DropdownMenuItem>
-                     <DropdownMenuSeparator />
-                     <DropdownMenuItem
-                        onClick={() => setIsLoggedIn(!isLoggedIn)}
-                     >
-                        <div className="flex justify-between items-center">
-                           <div className="mr-11">Logout</div>
-                           <LogOut size={20} strokeWidth={2} />
-                        </div>
-                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-               </DropdownMenu>
-            ) : (
-               <Button
-                  variant="default"
-                  className="text-base"
-                  onClick={() => {
-                     navigate('/login');
-                  }}
-               >
-                  Login
-               </Button>
-            )}
-         </div>
          <Input
             className="w-full mt-2 sm:hidden"
             id="search"
