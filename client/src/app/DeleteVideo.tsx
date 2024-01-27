@@ -46,7 +46,7 @@ const DeleteVideo = () => {
                            <div className="basis-1/5">
                               <Trash2
                                  strokeWidth={2}
-                                 color="red"
+                                 color="#ff4d4d"
                                  className="ml-3"
                               />
                            </div>

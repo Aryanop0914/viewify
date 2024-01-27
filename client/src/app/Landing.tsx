@@ -10,11 +10,11 @@ const Landing = () => {
       <>
          <div className="max-md:hidden">
             <ResizablePanelGroup direction="horizontal">
-               <ResizablePanel defaultSize={10} maxSize={15}>
+               <ResizablePanel defaultSize={15} maxSize={15} minSize={10}>
                   <Sidebar />
                </ResizablePanel>
-               <ResizableHandle />
-               <ResizablePanel defaultSize={90} maxSize={90}>
+               <ResizableHandle className="h-screen" />
+               <ResizablePanel defaultSize={85} maxSize={90}>
                   <Outlet />
                </ResizablePanel>
             </ResizablePanelGroup>
