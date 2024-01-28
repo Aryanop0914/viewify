@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
+import axios from 'axios';
 import {
    Form,
    FormControl,
@@ -15,7 +16,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 
-const formSchema = z
+const formSchema: any = z
    .object({
       email: z.string().email({
          message: 'Email is not valid',
@@ -41,7 +42,22 @@ const Register = () => {
       },
    });
    const onSubmit = (values: z.infer<typeof formSchema>) => {
-      console.table(values);
+      if (values.password === values.cpassword) {
+         axios
+            .post('http://localhost:8000/api/v1/users/register', {
+               email: values.email,
+               password: values.password,
+            })
+            .then((res) => {
+               console.log(res);
+               navigate('/home');
+            })
+            .catch(function (error) {
+               console.log(error);
+            });
+      } else {
+         console.log('error');
+      }
    };
 
    return (
