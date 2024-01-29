@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
+import { useAuthStore } from '../store/authStore';
+import BeatLoader from 'react-spinners/BeatLoader';
 import {
    Form,
    FormControl,
-   FormDescription,
    FormField,
    FormItem,
    FormLabel,
@@ -14,8 +16,9 @@ import {
 } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
+import { useState } from 'react';
 
-const formSchema = z.object({
+const formSchema: any = z.object({
    email: z.string().email({
       message: 'Email is not valid',
    }),
@@ -25,6 +28,8 @@ const formSchema = z.object({
 });
 
 const Login = () => {
+   const [loading, setLoading] = useState(false);
+   const { login } = useAuthStore();
    const navigate = useNavigate();
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -33,8 +38,29 @@ const Login = () => {
          password: '',
       },
    });
-   const onSubmit = (values: z.infer<typeof formSchema>) => {
-      console.table(values);
+   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+      const config = {
+         headers: { 'Content-Type': 'application/json' },
+         withCredentials: true,
+      };
+      setLoading(true);
+      axios
+         .post(
+            'http://localhost:8000/api/v1/users/login',
+            {
+               email: values.email,
+               password: values.password,
+            },
+            config
+         )
+         .then((res) => {
+            login(res.data.data.user.email, res.data.data.accessToken);
+            navigate('/');
+            setLoading(false);
+         })
+         .catch(function (error) {
+            console.log(error);
+         });
    };
 
    return (
@@ -85,7 +111,7 @@ const Login = () => {
                      onClick={form.handleSubmit(onSubmit)}
                      className="w-full"
                   >
-                     Submit
+                     {loading ? <BeatLoader color="#05313d" /> : 'Submit'}
                   </Button>
                </form>
                <div className="flex justify-between items-center">

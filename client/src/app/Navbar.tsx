@@ -20,6 +20,8 @@ import {
    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAuthStore } from '@/store/authStore';
+import axios from 'axios';
 
 const NavLinks = () => {
    return (
@@ -31,10 +33,21 @@ const NavLinks = () => {
    );
 };
 const Navbar = () => {
+   const accessToken = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('accessToken='))
+      ?.split('=')[1];
+   const config = {
+      headers: {
+         'Content-Type': 'application/json',
+         Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+   };
+   const [user, setUser] = useState<any>();
    const navigate = useNavigate();
    const [isOpen, setIsOpen] = useState(false);
-   const [isLoggedIn, setIsLoggedIn] = useState(true);
-   //true--dark false--light
+   const { isLoggedIn, logout } = useAuthStore();
    const [theme1, setTheme1] = useState(true);
    const { setTheme } = useTheme();
 
@@ -61,6 +74,38 @@ const Navbar = () => {
          window.removeEventListener('resize', handleResize);
       };
    }, []);
+   const logOut = async () => {
+      setUser(null);
+      await axios
+         .post('http://localhost:8000/api/v1/users/logout', {}, config)
+         .then((res) => {
+            if (res) {
+               logout();
+            }
+         })
+         .catch((err) => {
+            console.log(err);
+         });
+   };
+   useEffect(() => {
+      if (isLoggedIn) {
+         const config = {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+         };
+         axios
+            .get('http://localhost:8000/api/v1/users/current-user', config)
+            .then((res) => {
+               setUser(res.data.data);
+            })
+            .catch(function (error) {
+               console.log(error);
+            });
+      } else {
+         const avatar =
+            'https://res.cloudinary.com/aryanop0194/image/upload/v1706420122/png-clipart-black-logo-computer-icons-user-profile-login-avatar-description-heroes-monochrome_vh9kkg.png';
+      }
+   }, [isLoggedIn]);
    return (
       <header className="bg-background top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between p-4 text-foreground ">
          <div className="flex items-center">
@@ -83,14 +128,14 @@ const Navbar = () => {
             </div>
             <Toggle aria-label="Toggle bold" onClick={toggleTheme}>
                <Lightbulb className="h-4 w-4 mx-1" />
-               <h1 className="text-base">{theme1 ? 'Dark' : 'Light'}</h1>
+               <p className="text-base">{theme1 ? 'Dark' : 'Light'}</p>
             </Toggle>
          </nav>
          {isLoggedIn ? (
             <DropdownMenu>
                <DropdownMenuTrigger>
                   <Avatar>
-                     <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
+                     <AvatarImage src={user?.avatar} />
                      <AvatarFallback>Avatar</AvatarFallback>
                   </Avatar>
                </DropdownMenuTrigger>
@@ -109,7 +154,7 @@ const Navbar = () => {
                      </div>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setIsLoggedIn(!isLoggedIn)}>
+                  <DropdownMenuItem onClick={() => logOut()}>
                      <div className="flex justify-between items-center">
                         <div className="mr-11">Logout</div>
                         <LogOut size={20} strokeWidth={2} />
