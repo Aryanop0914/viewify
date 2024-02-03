@@ -48,6 +48,7 @@ const Navbar = () => {
    const navigate = useNavigate();
    const [isOpen, setIsOpen] = useState(false);
    const { isLoggedIn, logout } = useAuthStore();
+   const [loggedin, setLoggedIn] = useState(isLoggedIn);
    const [theme1, setTheme1] = useState(true);
    const { setTheme } = useTheme();
 
@@ -76,23 +77,17 @@ const Navbar = () => {
    }, []);
    const logOut = async () => {
       setUser(null);
+      setLoggedIn(false);
+      logout();
       await axios
          .post('http://localhost:8000/api/v1/users/logout', {}, config)
-         .then((res) => {
-            if (res) {
-               logout();
-            }
-         })
          .catch((err) => {
             console.log(err);
          });
    };
    useEffect(() => {
       if (isLoggedIn) {
-         const config = {
-            headers: { 'Content-Type': 'application/json' },
-            withCredentials: true,
-         };
+         setLoggedIn(true);
          axios
             .get('http://localhost:8000/api/v1/users/current-user', config)
             .then((res) => {
@@ -101,9 +96,6 @@ const Navbar = () => {
             .catch(function (error) {
                console.log(error);
             });
-      } else {
-         const avatar =
-            'https://res.cloudinary.com/aryanop0194/image/upload/v1706420122/png-clipart-black-logo-computer-icons-user-profile-login-avatar-description-heroes-monochrome_vh9kkg.png';
       }
    }, [isLoggedIn]);
    return (
@@ -131,16 +123,18 @@ const Navbar = () => {
                <p className="text-base">{theme1 ? 'Dark' : 'Light'}</p>
             </Toggle>
          </nav>
-         {isLoggedIn ? (
+         {loggedin ? (
             <DropdownMenu>
                <DropdownMenuTrigger>
                   <Avatar>
-                     <AvatarImage src={user?.avatar} />
+                     <AvatarImage src={user?.avatar?.url} />
                      <AvatarFallback>Avatar</AvatarFallback>
                   </Avatar>
                </DropdownMenuTrigger>
                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => navigate('/profile/1234')}>
+                  <DropdownMenuItem
+                     onClick={() => navigate(`/profile/${user?._id}`)}
+                  >
                      <div className="flex justify-between items-center">
                         <div className="mr-6">My Profile</div>
                         <User size={20} strokeWidth={2} />

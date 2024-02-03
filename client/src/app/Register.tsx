@@ -49,8 +49,10 @@ const Register = () => {
                password: values.password,
             })
             .then((res) => {
-               console.log(res);
-               navigate('/home');
+               if (res) {
+                  console.log(res.data.data);
+                  navigate('/');
+               }
             })
             .catch(function (error) {
                console.log(error);

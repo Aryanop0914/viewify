@@ -6,7 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { DEFAULT_AVATAR } from "../constants.js";
-
+import { ObjectId } from "bson";
 const generateAccessAndRefereshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -49,7 +49,8 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const user = await User.create({
-    avatar: DEFAULT_AVATAR,
+    "avatar.url": DEFAULT_AVATAR,
+    "avatar.publicId": "12345",
     email,
     password,
   });
@@ -87,14 +88,15 @@ const loginUser = asyncHandler(async (req, res) => {
   }
   const isPasswordValid = await user.isPasswordCorrect(password);
   if (!isPasswordValid) {
-    throw new ApiError(401, "Invalid user credentials");
+    throw new ApiError(401, "Password Incorrect");
   }
   const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
     user._id
   );
   const options = {
     httpOnly: true,
-    secure: true,
+    // secure: true,
+    SameSite: "None",
   };
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -137,7 +139,8 @@ const logoutUser = asyncHandler(async (req, res) => {
 
   const options = {
     httpOnly: true,
-    secure: true,
+    // secure: true,
+    SameSite: "None",
   };
   res.clearCookie("accessToken", options).clearCookie("refreshToken", options);
 
@@ -145,38 +148,32 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
+  console.log(req.body.refreshToken);
   const incomingRefreshToken =
-    req.cookies.refreshToken || req.body.refreshToken;
-
+    req.body.refreshToken || req.cookies.refreshToken;
+  console.log(incomingRefreshToken);
   if (!incomingRefreshToken) {
     throw new ApiError(401, "unauthorized request");
   }
-
   try {
     const decodedToken = jwt.verify(
       incomingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-
     const user = await User.findById(decodedToken?._id);
-
     if (!user) {
       throw new ApiError(401, "Invalid refresh token");
     }
-
     if (incomingRefreshToken !== user?.refreshToken) {
       throw new ApiError(401, "Refresh token is expired or used");
     }
-
     const options = {
       httpOnly: true,
-      secure: false,
-      sameSite: "None",
+      // secure: true,
+      SameSite: "None",
     };
-
     const { accessToken, newRefreshToken } =
       await generateAccessAndRefereshTokens(user._id);
-
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
@@ -206,7 +203,8 @@ const uploadFile = asyncHandler(async (req, res) => {
   if (!avatar) {
     throw new ApiError(400, "Avatar file is required");
   }
-  const uploadObject = await User.create({
+  const userId = req.user?._id;
+  const uploadObject = await User.findByIdAndUpdate(userId, {
     "avatar.url": avatar.url,
     "coverImage.url": coverImage?.url || "",
     "avatar.publicId": avatar.public_id,
@@ -246,9 +244,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, email } = req.body;
+  const { channelName, bio, dob } = req.body;
 
-  if (!fullName || !email) {
+  if (!channelName || !bio || !dob) {
     throw new ApiError(400, "All fields are required");
   }
 
@@ -256,8 +254,10 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     req.user?._id,
     {
       $set: {
-        fullName,
-        email: email,
+        channelName,
+        bio,
+        dob,
+        isVerified: true,
       },
     },
     { new: true }
@@ -329,16 +329,15 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 });
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
-  const { username } = req.params;
-
-  if (!username?.trim()) {
-    throw new ApiError(400, "username is missing");
+  const { profileId } = req.params;
+  if (!profileId?.trim()) {
+    throw new ApiError(400, "profileId is missing");
   }
 
   const channel = await User.aggregate([
     {
       $match: {
-        username: username?.toLowerCase(),
+        _id: new mongoose.Types.ObjectId(profileId),
       },
     },
     {
@@ -376,8 +375,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     },
     {
       $project: {
-        fullName: 1,
-        username: 1,
+        channelName: 1,
         subscribersCount: 1,
         channelsSubscribedToCount: 1,
         isSubscribed: 1,
@@ -387,7 +385,6 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
       },
     },
   ]);
-
   if (!channel?.length) {
     throw new ApiError(404, "channel does not exists");
   }

@@ -6,7 +6,6 @@ const userSchema = new Schema(
     channelName: {
       type: String,
       unique: true,
-      lowercase: true,
       trim: true,
       index: true,
     },
@@ -17,18 +16,24 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
-    fullName: {
-      type: String,
-      trim: true,
-      index: true,
-    },
     avatar: {
-      url: { type: String, required: true },
-      publicId: { type: String, required: true },
+      type: {
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
+      },
+      required: true,
+    },
+    bio: {
+      type: String,
+    },
+    dob: {
+      type: Date,
     },
     coverImage: {
-      url: { type: String },
-      publicId: { type: String },
+      type: {
+        url: { type: String, default: "0" },
+        publicId: { type: String, default: "0" },
+      },
     },
     watchHistory: [
       {
@@ -42,6 +47,10 @@ const userSchema = new Schema(
     },
     refreshToken: {
       type: String,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

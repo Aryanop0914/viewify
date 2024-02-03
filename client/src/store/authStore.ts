@@ -6,7 +6,8 @@ interface AuthState {
    email: string;
    isLoggedIn: boolean;
    accessToken: string | null;
-   login: (email: string, accessToken: string) => void;
+   refreshToken: string | null;
+   login: (email: string, accessToken: string, refreshToken: string) => void;
    logout: () => void;
 }
 
@@ -20,26 +21,34 @@ export const useAuthStore = create<AuthState>((set) => {
       email: storedAuthState.email || '',
       isLoggedIn: storedAuthState.isLoggedIn || false,
       accessToken: storedAuthState.accessToken || null,
-      login: (email, accessToken) => {
+      refreshToken: storedAuthState.refreshToken || null,
+      login: (email, accessToken, refreshToken) => {
          set((state: AuthState) => ({
             ...state,
             email,
             accessToken,
+            refreshToken,
             isLoggedIn: true,
          }));
          // Store authentication state in local storage
          localStorage.setItem(
             'authState',
-            JSON.stringify({ email, accessToken, isLoggedIn: true })
+            JSON.stringify({
+               email,
+               accessToken,
+               refreshToken,
+               isLoggedIn: true,
+            })
          );
       },
       logout: () => {
-         set((state: AuthState) => ({
-            ...state,
-            email: '',
-            accessToken: null,
-            isLoggedIn: false,
-         }));
+         // set((state: AuthState) => ({
+         //    ...state,
+         //    email: '',
+         //    accessToken: null,
+         //    refreshToken: null,
+         //    isLoggedIn: false,
+         // }));
          // Remove authentication state from local storage
          localStorage.removeItem('authState');
       },

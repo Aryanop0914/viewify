@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import {
    ResizableHandle,
@@ -16,6 +18,7 @@ import {
    CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import axios from 'axios';
 const VideoCardHorizontal = () => {
    return (
       <ScrollArea className="w-full whitespace-nowrap rounded-md border-0">
@@ -57,6 +60,53 @@ const VideoCardHorizontal = () => {
 };
 
 const UserInfo = () => {
+   const { profileId } = useParams();
+   const [user, setUser] = useState<any>();
+   const accessToken = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('accessToken='))
+      ?.split('=')[1];
+   const config = {
+      headers: {
+         Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+   };
+   useEffect(() => {
+      // setLoading(true);
+      axios
+         .get(`http://localhost:8000/api/v1/users/channel/${profileId}`, config)
+         .then((res: any) => {
+            if (res.status === 200) {
+               // setLoading(false);
+               setUser(res.data.data);
+               console.log(res.data.data);
+            } else {
+               console.log('Something Went Wrong');
+            }
+         })
+         .catch((error) => {
+            console.error('Error fetching user data:', error);
+         });
+   }, []);
+
+   const Subscribe = () => {
+      axios
+         .get(`http://localhost:8000/api/v1/users/channel/${profileId}`, config)
+         .then((res: any) => {
+            if (res.status === 200) {
+               // setLoading(false);
+               setUser(res.data.data);
+               console.log(res.data.data);
+            } else {
+               console.log('Something Went Wrong');
+            }
+         })
+         .catch((error) => {
+            console.error('Error fetching user data:', error);
+         });
+   };
+
    return (
       <div className="w-full h-screen overflow-y-auto flex justify-center">
          <ResizablePanelGroup
@@ -79,17 +129,19 @@ const UserInfo = () => {
                <div className="flex flex-wrap justify-between items-center ">
                   <div className="m-8 flex flex-row justify-start items-center">
                      <Avatar className="h-20 w-20">
-                        <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
+                        <AvatarImage
+                           src={user?.avatar?.url || 'default-avatar-url'}
+                        />
                         <AvatarFallback>Avatar</AvatarFallback>
                      </Avatar>
                      <div className="ml-4 space-y-2">
                         <h1 className="text-3xl text-primary max-[390px]:text-xl ">
-                           Code With Aryan
+                           {user?.channelName}
                         </h1>
                         <div className="flex flex-row max-[390px]:text-sm">
                            <p className="text-muted-foreground text-md ">
                               {' '}
-                              123k Subscribers
+                              {user?.subscribersCount} Subscribers
                            </p>
                            <Dot size={20} strokeWidth={3} className="m-1" />
                            <p className="text-muted-foreground">14 videos</p>
@@ -97,7 +149,9 @@ const UserInfo = () => {
                      </div>
                   </div>
                   <div className="">
-                     <Button className="m-5">Subscribe</Button>
+                     <Button className="m-5" onClick={Subscribe()}>
+                        Subscribe
+                     </Button>
                      <Button variant="ghost">
                         <div className="mr-2">Share </div> <Share />
                      </Button>

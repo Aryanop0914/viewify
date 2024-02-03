@@ -54,9 +54,17 @@ const Login = () => {
             config
          )
          .then((res) => {
-            login(res.data.data.user.email, res.data.data.accessToken);
-            navigate('/');
-            setLoading(false);
+            if (res.status === 200) {
+               login(
+                  res.data.data.user.email,
+                  res.data.data.accessToken,
+                  res.data.data.refreshToken
+               );
+               navigate('/');
+               setLoading(false);
+            } else {
+               console.log(res.status);
+            }
          })
          .catch(function (error) {
             console.log(error);

@@ -22,10 +22,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
+import { useState } from 'react';
 // import { toast } from '@/registry/new-york/ui/use-toast';
+import BeatLoader from 'react-spinners/BeatLoader';
+import axios from 'axios';
 
 const profileFormSchema = z.object({
-   username: z
+   channelName: z
       .string()
       .min(2, {
          message: 'Username must be at least 2 characters.',
@@ -43,26 +46,57 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
+   channelName: '',
    bio: 'I own a computer.',
+   dob: new Date(),
 };
 
 const UpdateProfile = () => {
+   const [loading, setLoading] = useState(false);
    const form = useForm<ProfileFormValues>({
       resolver: zodResolver(profileFormSchema),
       defaultValues,
       mode: 'onChange',
    });
 
-   function onSubmit(data: ProfileFormValues) {
-      console.log(data);
-   }
+   const onSubmit = async (data: ProfileFormValues) => {
+      setLoading(true);
+      const accessToken = document.cookie
+         .split('; ')
+         .find((row) => row.startsWith('accessToken='))
+         ?.split('=')[1];
+      const config = {
+         headers: {
+            Authorization: `Bearer ${accessToken}`,
+         },
+         withCredentials: true,
+      };
+      setLoading(true);
+      axios
+         .patch(
+            'http://localhost:8000/api/v1/users/update-account',
+            data,
+            config
+         )
+         .then((res) => {
+            if (res.status === 200) {
+               setLoading(false);
+               console.log(res);
+            } else {
+               console.log('Something Went Wrong');
+            }
+         })
+         .catch((error) => {
+            console.error('Error fetching user data:', error);
+         });
+   };
 
    return (
       <Form {...form}>
          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
                control={form.control}
-               name="username"
+               name="channelName"
                render={({ field }) => (
                   <FormItem>
                      <FormLabel className="text-xl">Channel Name</FormLabel>
@@ -144,7 +178,9 @@ const UpdateProfile = () => {
                   </FormItem>
                )}
             />
-            <Button type="submit">Update profile</Button>
+            <Button type="submit">
+               {loading ? <BeatLoader color="#05313d" /> : 'Submit'}
+            </Button>
          </form>
       </Form>
    );

@@ -12,8 +12,9 @@ import axios from 'axios';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-
+import BeatLoader from 'react-spinners/BeatLoader';
 const Uploads = () => {
+   const [loading, setLoading] = useState(false);
    const [files, setFiles] = useState({ avatar: '', coverImage: '' });
    const form = useForm();
    const { register, handleSubmit } = useForm();
@@ -24,26 +25,30 @@ const Uploads = () => {
          [fieldName]: e.target.files[0], // Assuming only one file is selected
       });
    };
-   const fd = new FormData();
-   fd.append('avatar', files.avatar);
-   fd.append('coverImage', files.coverImage);
    const onSubmitUpload = () => {
+      const fd = new FormData();
+      fd.append('avatar', files.avatar);
+      fd.append('coverImage', files.coverImage);
+
       const accessToken = document.cookie
          .split('; ')
          .find((row) => row.startsWith('accessToken='))
          ?.split('=')[1];
       const config = {
          headers: {
-            'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
          },
          withCredentials: true,
       };
-
+      setLoading(true);
       axios
          .post('http://localhost:8000/api/v1/users/uploads', fd, config)
          .then((res) => {
-            console.log(res);
+            if (res.status === 200) {
+               setLoading(false);
+            } else {
+               console.log('Something Went Wrong');
+            }
          })
          .catch((error) => {
             console.error('Error fetching user data:', error);
@@ -95,7 +100,9 @@ const Uploads = () => {
                   </FormItem>
                )}
             />
-            <Button type="submit">Upload</Button>
+            <Button type="submit">
+               {loading ? <BeatLoader color="#05313d" /> : 'Submit'}
+            </Button>
          </form>
       </Form>
    );
