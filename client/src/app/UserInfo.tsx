@@ -62,6 +62,7 @@ const VideoCardHorizontal = () => {
 const UserInfo = () => {
    const { profileId } = useParams();
    const [user, setUser] = useState<any>();
+   const [subscribed, setSubscribed] = useState<boolean | null>(null);
    const accessToken = document.cookie
       .split('; ')
       .find((row) => row.startsWith('accessToken='))
@@ -73,30 +74,42 @@ const UserInfo = () => {
       withCredentials: true,
    };
    useEffect(() => {
-      // setLoading(true);
       axios
          .get(`http://localhost:8000/api/v1/users/channel/${profileId}`, config)
          .then((res: any) => {
-            if (res.status === 200) {
-               // setLoading(false);
-               setUser(res.data.data);
-               console.log(res.data.data);
-            } else {
-               console.log('Something Went Wrong');
-            }
+            setUser(res.data.data);
+            axios
+               .get(
+                  `http://localhost:8000/api/v1/subscriptions/subscribed/${res.data.data._id}`,
+                  config
+               )
+               .then((res: any) => {
+                  if (res.data.data === 'true') {
+                     setSubscribed(true);
+                  } else {
+                     setSubscribed(false);
+                  }
+               })
+               .catch((error) => {
+                  console.error('Error fetching user data:', error);
+               });
          })
          .catch((error) => {
             console.error('Error fetching user data:', error);
          });
-   }, []);
+   }, [accessToken, config, profileId]);
 
    const Subscribe = () => {
       axios
-         .get(`http://localhost:8000/api/v1/users/channel/${profileId}`, config)
+         .post(
+            `http://localhost:8000/api/v1/subscriptions/subscribe/${user._id}`,
+            {},
+            config
+         )
          .then((res: any) => {
             if (res.status === 200) {
                // setLoading(false);
-               setUser(res.data.data);
+               setSubscribed(!subscribed);
                console.log(res.data.data);
             } else {
                console.log('Something Went Wrong');
@@ -149,8 +162,13 @@ const UserInfo = () => {
                      </div>
                   </div>
                   <div className="">
-                     <Button className="m-5" onClick={Subscribe()}>
-                        Subscribe
+                     <Button
+                        className="m-5"
+                        onClick={() => {
+                           Subscribe();
+                        }}
+                     >
+                        {subscribed ? 'Unsubscribe' : 'Subscribe'}
                      </Button>
                      <Button variant="ghost">
                         <div className="mr-2">Share </div> <Share />

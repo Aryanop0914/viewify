@@ -1,5 +1,3 @@
-// stores/authStore.ts
-
 import { create } from 'zustand';
 
 interface AuthState {
@@ -9,6 +7,7 @@ interface AuthState {
    refreshToken: string | null;
    login: (email: string, accessToken: string, refreshToken: string) => void;
    logout: () => void;
+   refreshTokens: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => {
@@ -42,15 +41,42 @@ export const useAuthStore = create<AuthState>((set) => {
          );
       },
       logout: () => {
-         // set((state: AuthState) => ({
-         //    ...state,
-         //    email: '',
-         //    accessToken: null,
-         //    refreshToken: null,
-         //    isLoggedIn: false,
-         // }));
          // Remove authentication state from local storage
          localStorage.removeItem('authState');
+         set((state: AuthState) => ({
+            ...state,
+            email: '',
+            accessToken: null,
+            refreshToken: null,
+            isLoggedIn: false,
+         }));
+      },
+      refreshTokens: async () => {
+         const { refreshToken } = useAuthStore.getState();
+         try {
+            const response = await fetch(
+               'http://localhost:8000/api/token/refresh',
+               {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ refreshToken }),
+               }
+            );
+
+            if (!response.ok) {
+               throw new Error('Failed to refresh tokens');
+            }
+
+            const { accessToken } = await response.json();
+            useAuthStore.setState({
+               accessToken,
+            });
+         } catch (error) {
+            console.error('Error refreshing tokens:', error);
+            // Handle token refresh failure (e.g., logout user)
+         }
       },
    };
 });
