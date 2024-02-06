@@ -19,7 +19,10 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
-const VideoCardHorizontal = () => {
+const VideoCardHorizontal = (props: any) => {
+   const videos = props.videos;
+   console.log(videos);
+
    return (
       <ScrollArea className="w-full whitespace-nowrap rounded-md border-0">
          <div className="flex w-max space-x-4">
@@ -62,6 +65,7 @@ const VideoCardHorizontal = () => {
 const UserInfo = () => {
    const { profileId } = useParams();
    const [user, setUser] = useState<any>();
+   const [videos, setVideos] = useState([]);
    const [subscribed, setSubscribed] = useState<boolean | null>(null);
    const accessToken = document.cookie
       .split('; ')
@@ -74,10 +78,22 @@ const UserInfo = () => {
       withCredentials: true,
    };
    useEffect(() => {
+      const accessToken = document.cookie
+         .split('; ')
+         .find((row) => row.startsWith('accessToken='))
+         ?.split('=')[1];
+      const config = {
+         headers: {
+            Authorization: `Bearer ${accessToken}`,
+         },
+         withCredentials: true,
+      };
       axios
          .get(`http://localhost:8000/api/v1/users/channel/${profileId}`, config)
          .then((res: any) => {
             setUser(res.data.data);
+            console.log(res.data.data);
+
             axios
                .get(
                   `http://localhost:8000/api/v1/subscriptions/subscribed/${res.data.data._id}`,
@@ -97,7 +113,27 @@ const UserInfo = () => {
          .catch((error) => {
             console.error('Error fetching user data:', error);
          });
-   }, [accessToken, config, profileId]);
+      const queryParams = {
+         // Add your query parameters here
+         page: 1,
+         limit: 10,
+         sortBy: 'createdAt',
+         sortType: 'desc',
+         userId: profileId,
+      };
+      // Make the GET request with query parameters
+      axios
+         .get('http://localhost:8000/api/v1/videos/getvideo ', {
+            params: queryParams,
+         })
+         .then((res) => {
+            setVideos(res.data.data);
+            console.log(res.data.data);
+         })
+         .catch((err) => {
+            console.log(err);
+         });
+   }, [profileId]);
 
    const Subscribe = () => {
       axios
@@ -130,7 +166,7 @@ const UserInfo = () => {
                <div className="flex items-center justify-center p-4">
                   <AspectRatio ratio={21 / 9}>
                      <img
-                        src="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80"
+                        src={user?.coverImage?.url || 'default-avatar-url'}
                         alt="Image"
                         className="rounded-md w-full h-[220px]"
                      />
@@ -175,7 +211,7 @@ const UserInfo = () => {
                      </Button>
                   </div>
                </div>
-               <VideoCardHorizontal />
+               <VideoCardHorizontal videos={videos} />
             </ResizablePanel>
          </ResizablePanelGroup>
       </div>

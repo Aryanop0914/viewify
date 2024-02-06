@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 const videoSchema = Schema(
   {
-    videoFile: {
+    video: {
       type: { url: String, public_id: String },
       required: true,
     },

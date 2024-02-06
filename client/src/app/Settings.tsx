@@ -7,6 +7,7 @@ const Nav = () => {
    const items = [
       { href: '/settings', title: 'Profile' },
       { href: '/settings/uploads', title: 'Uploads' },
+      { href: '/settings/upload-video', title: 'Upload Video' },
       { href: '/settings/delete-video', title: 'Delete Video' },
    ];
    return (

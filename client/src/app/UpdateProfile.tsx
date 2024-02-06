@@ -60,7 +60,6 @@ const UpdateProfile = () => {
    });
 
    const onSubmit = async (data: ProfileFormValues) => {
-      setLoading(true);
       const accessToken = document.cookie
          .split('; ')
          .find((row) => row.startsWith('accessToken='))

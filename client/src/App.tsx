@@ -10,6 +10,7 @@ import UserInfo from './app/UserInfo';
 import Landing from './app/Landing';
 import Video from './app/Video';
 import DeleteVideo from './app/DeleteVideo';
+import UploadVideo from './app/UploadVideo';
 
 function App() {
    return (
@@ -21,6 +22,10 @@ function App() {
                   <Route path="/settings" element={<Settings />}>
                      <Route index element={<UpdateProfile />} />
                      <Route path="/settings/uploads" element={<Uploads />} />
+                     <Route
+                        path="/settings/upload-video"
+                        element={<UploadVideo />}
+                     />
                      <Route
                         path="/settings/delete-video"
                         element={<DeleteVideo />}

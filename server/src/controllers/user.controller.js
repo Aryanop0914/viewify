@@ -206,16 +206,15 @@ const uploadFile = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
   const uploadObject = await User.findByIdAndUpdate(userId, {
     "avatar.url": avatar.url,
-    "coverImage.url": coverImage?.url || "",
     "avatar.publicId": avatar.public_id,
-    "coverImage.url": coverImage?.public_id || "",
+    "coverImage.url": coverImage?.url || "",
+    "coverImage.publicId": coverImage?.public_id || "",
   });
   if (!uploadObject) {
     throw new ApiError(500, "Something went wrong while Uploading images");
   }
-
   return res
-    .status(201)
+    .status(200)
     .json(new ApiResponse(200, "Images Uploaded Successfully"));
 });
 
