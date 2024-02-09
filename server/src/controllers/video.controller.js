@@ -7,34 +7,12 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-  //TODO: get all videos based on query, sort, pagination
-  // Construct query options based on provided parameters
-  let queryOptions = {};
-
-  // Implement logic to build the query based on parameters
-  if (query) {
-    // Example: queryOptions.title = { $regex: query, $options: 'i' };
-    // This assumes you're searching based on the title field
-    queryOptions.owner = userId;
-  }
-
-  if (sortBy) {
-    // Example: queryOptions.sortBy = { [sortBy]: sortType === 'asc' ? 1 : -1 };
-    // This assumes you're sorting based on a specific field (e.g., createdAt)
-  }
-
-  // Implement pagination
-  const skip = (parseInt(page) - 1) * parseInt(limit);
-
-  // Fetch videos based on query options, pagination, and any other conditions
-  const videos = await Video.find(queryOptions)
-    .skip(skip)
-    .limit(parseInt(limit))
-    .exec();
-
-  // Send the response with fetched videos
-  res.status(200).json({ success: true, data: videos });
+  // const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
+  const { userId } = req.params;
+  const videos = await Video.find({ owner: userId });
+  res
+    .status(200)
+    .json(new ApiResponse(200, videos, "Videos fetched Successfully"));
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -76,6 +54,16 @@ const publishAVideo = asyncHandler(async (req, res) => {
 const getVideoById = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: get video by id
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Video Id is not Correct");
+  }
+  const video = await Video.findById(videoId);
+  if (!video) {
+    throw new ApiError(400, "Something Went Wrong While Fetching video");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, video, "Video Fetched Succesfully"));
 });
 
 const updateVideo = asyncHandler(async (req, res) => {

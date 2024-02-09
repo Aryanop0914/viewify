@@ -10,7 +10,9 @@ import {
    CardTitle,
 } from '@/components/ui/card';
 import arrUser from './data';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 const VideoSidebar = () => {
    const navigate = useNavigate();
    return (
@@ -46,22 +48,43 @@ const VideoSidebar = () => {
    );
 };
 const Video = () => {
-   // const { videoid } = useParams();
+   const { videoId } = useParams();
+   const [video, setVideo] = useState<any>();
    const navigate = useNavigate();
+   const accessToken = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('accessToken='))
+      ?.split('=')[1];
+   const config = {
+      headers: {
+         Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+   };
+   useEffect(() => {
+      axios
+         .get(`http://localhost:8000/api/v1/videos/${videoId}`, config)
+         .then((res) => {
+            setVideo(res.data.data);
+            console.log(res.data.data);
+         });
+   }, [videoId]);
+   if (!video) {
+      return <div>Loading...</div>; // or show a loader or handle the loading state
+   }
 
    return (
       <>
          <div className="flex flex-row h-max">
             <div className="flex flex-col w-full lg:basis-3/5 border-0">
                <div className="m-4 md:m-8">
-                  <img
-                     src="https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=800&dpr=2&q=80"
-                     alt="Photo by Drew Beamer"
-                     className="rounded-lg object-cover"
+                  <iframe
+                     src={video?.video.url}
+                     className="rounded-lg object-cover w-[800px] h-[500px]"
                   />
                </div>
                <div className="mx-8 mb-2 lg:-mt-4 lg:mx-12">
-                  <p className="text-xl">Create yt Mern stack Website</p>
+                  <p className="text-xl">{video.title}</p>
                </div>
                <div className="mx-6 mt-4 px-4 flex flex-row flex-wrap justify-start items-center">
                   <Avatar

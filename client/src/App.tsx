@@ -33,7 +33,7 @@ function App() {
                   </Route>
                </Route>
                <Route path="/profile/:profileId" element={<UserInfo />} />
-               <Route path="/video/:videoid" element={<Video />}></Route>
+               <Route path="/video/:videoId" element={<Video />}></Route>
             </Route>
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />

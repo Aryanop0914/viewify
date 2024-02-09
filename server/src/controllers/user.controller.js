@@ -373,11 +373,38 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
       },
     },
     {
+      $lookup: {
+        from: "videos",
+        let: { userId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$owner", "$$userId"],
+              },
+            },
+          },
+          {
+            $count: "totalVideos",
+          },
+        ],
+        as: "userVideos",
+      },
+    },
+    {
+      $addFields: {
+        totalVideos: {
+          $ifNull: [{ $arrayElemAt: ["$userVideos.totalVideos", 0] }, 0],
+        },
+      },
+    },
+    {
       $project: {
         channelName: 1,
         subscribersCount: 1,
         channelsSubscribedToCount: 1,
         isSubscribed: 1,
+        totalVideos: 1,
         avatar: 1,
         coverImage: 1,
         email: 1,

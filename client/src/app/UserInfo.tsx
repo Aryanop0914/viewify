@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import {
    ResizableHandle,
@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/resizable';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dot, Share } from 'lucide-react';
-import arrUser from './data';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import {
    Card,
@@ -21,20 +20,27 @@ import { Button } from '@/components/ui/button';
 import axios from 'axios';
 const VideoCardHorizontal = (props: any) => {
    const videos = props.videos;
-   console.log(videos);
+
+   const navigate = useNavigate();
 
    return (
       <ScrollArea className="w-full whitespace-nowrap rounded-md border-0">
          <div className="flex w-max space-x-4">
-            {arrUser.map((video) => (
+            {videos.map((video: any) => (
                <Card
                   className="border-0 shadow-none p-2 mx-auto w-[300px]"
-                  key={video.id}
+                  key={video._id}
                >
                   <CardContent className="p-1">
-                     <AspectRatio ratio={16 / 9} className="bg-muted">
+                     <AspectRatio
+                        ratio={16 / 9}
+                        className="bg-muted"
+                        onClick={() => {
+                           navigate(`/video/${video._id}`);
+                        }}
+                     >
                         <img
-                           src={video.image}
+                           src={video.thumbnail.url}
                            alt="Photo by Drew Beamer"
                            className="rounded-md object-cover w-full"
                         />
@@ -50,7 +56,10 @@ const VideoCardHorizontal = (props: any) => {
                               {video.views} Views
                            </CardDescription>
                            <Dot size={20} strokeWidth={3} className="m-1" />
-                           <CardDescription> {video.published}</CardDescription>
+                           <CardDescription>
+                              {' '}
+                              {video.description}
+                           </CardDescription>
                         </div>
                      </CardHeader>
                   </div>
@@ -78,82 +87,48 @@ const UserInfo = () => {
       withCredentials: true,
    };
    useEffect(() => {
-      const accessToken = document.cookie
-         .split('; ')
-         .find((row) => row.startsWith('accessToken='))
-         ?.split('=')[1];
-      const config = {
-         headers: {
-            Authorization: `Bearer ${accessToken}`,
-         },
-         withCredentials: true,
-      };
-      axios
-         .get(`http://localhost:8000/api/v1/users/channel/${profileId}`, config)
-         .then((res: any) => {
+      const fetchUserData = async () => {
+         try {
+            const res = await axios.get(
+               `http://localhost:8000/api/v1/users/channel/${profileId}`,
+               config
+            );
             setUser(res.data.data);
-            console.log(res.data.data);
 
-            axios
-               .get(
-                  `http://localhost:8000/api/v1/subscriptions/subscribed/${res.data.data._id}`,
-                  config
-               )
-               .then((res: any) => {
-                  if (res.data.data === 'true') {
-                     setSubscribed(true);
-                  } else {
-                     setSubscribed(false);
-                  }
-               })
-               .catch((error) => {
-                  console.error('Error fetching user data:', error);
-               });
-         })
-         .catch((error) => {
+            const subscribedRes = await axios.get(
+               `http://localhost:8000/api/v1/subscriptions/subscribed/${res.data.data._id}`,
+               config
+            );
+            setSubscribed(subscribedRes.data.data === 'true');
+
+            const videosRes = await axios.get(
+               `http://localhost:8000/api/v1/videos/getvideo/${res.data.data._id}`,
+               config
+            );
+            setVideos(videosRes.data.data);
+         } catch (error) {
             console.error('Error fetching user data:', error);
-         });
-      const queryParams = {
-         // Add your query parameters here
-         page: 1,
-         limit: 10,
-         sortBy: 'createdAt',
-         sortType: 'desc',
-         userId: profileId,
+         }
       };
-      // Make the GET request with query parameters
-      axios
-         .get('http://localhost:8000/api/v1/videos/getvideo ', {
-            params: queryParams,
-         })
-         .then((res) => {
-            setVideos(res.data.data);
-            console.log(res.data.data);
-         })
-         .catch((err) => {
-            console.log(err);
-         });
-   }, [profileId]);
 
-   const Subscribe = () => {
-      axios
-         .post(
+      fetchUserData();
+   }, [profileId, subscribed]);
+
+   const handleSubscribe = async () => {
+      try {
+         const res = await axios.post(
             `http://localhost:8000/api/v1/subscriptions/subscribe/${user._id}`,
             {},
             config
-         )
-         .then((res: any) => {
-            if (res.status === 200) {
-               // setLoading(false);
-               setSubscribed(!subscribed);
-               console.log(res.data.data);
-            } else {
-               console.log('Something Went Wrong');
-            }
-         })
-         .catch((error) => {
-            console.error('Error fetching user data:', error);
-         });
+         );
+         if (res.status === 200) {
+            setSubscribed(!subscribed);
+         } else {
+            console.log('Something Went Wrong');
+         }
+      } catch (error) {
+         console.error('Error subscribing:', error);
+      }
    };
 
    return (
@@ -193,7 +168,9 @@ const UserInfo = () => {
                               {user?.subscribersCount} Subscribers
                            </p>
                            <Dot size={20} strokeWidth={3} className="m-1" />
-                           <p className="text-muted-foreground">14 videos</p>
+                           <p className="text-muted-foreground">
+                              {user?.totalVideos} videos
+                           </p>
                         </div>
                      </div>
                   </div>
@@ -201,7 +178,7 @@ const UserInfo = () => {
                      <Button
                         className="m-5"
                         onClick={() => {
-                           Subscribe();
+                           handleSubscribe();
                         }}
                      >
                         {subscribed ? 'Unsubscribe' : 'Subscribe'}
