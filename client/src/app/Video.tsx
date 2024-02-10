@@ -66,7 +66,6 @@ const Video = () => {
          .get(`http://localhost:8000/api/v1/videos/${videoId}`, config)
          .then((res) => {
             setVideo(res.data.data);
-            console.log(res.data.data);
          });
    }, [videoId]);
    if (!video) {

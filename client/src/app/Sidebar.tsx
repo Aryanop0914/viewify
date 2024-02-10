@@ -1,30 +1,40 @@
 import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Settings } from 'lucide-react';
-import arrUser from './data';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
-const Subscriptions = () => {
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useAuthStore } from '@/store/authStore';
+const Subscriptions = (props: any) => {
+   const subscriptions = props.subscriptions;
+   const navigate = useNavigate();
+
    return (
       <>
-         {arrUser.map((video) => (
+         {subscriptions.map((subscriber: any) => (
             <div
-               key={video.id}
+               key={subscriber._id}
                className="mt-3 flex justify-center lg:justify-start"
             >
                <Button
                   variant="ghost"
                   className="flex flex-row justify-between mx-3"
+                  onClick={() => {
+                     navigate(`/profile/${subscriber._id}`);
+                  }}
                >
                   <Avatar className="h-8 w-8  lg:mr-2">
                      <AvatarImage
                         className="rounded-full"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                        src={subscriber.avatar.url}
                      />
                      <AvatarFallback>Avatar</AvatarFallback>
                   </Avatar>
-                  <div className="hidden lg:block">{video.channelName}</div>
+                  <div className="hidden lg:block">
+                     {subscriber.channelName}
+                  </div>
                </Button>
             </div>
          ))}
@@ -32,7 +42,9 @@ const Subscriptions = () => {
    );
 };
 const Sidebar = () => {
+   const [subscribe, setSubscribed] = useState([]);
    const location = useLocation();
+   const { isLoggedIn } = useAuthStore();
    const items = [
       {
          href: '/',
@@ -45,6 +57,32 @@ const Sidebar = () => {
          symbol: <Settings strokeWidth={2} />,
       },
    ];
+   const accessToken = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('accessToken='))
+      ?.split('=')[1];
+
+   const config = {
+      headers: {
+         Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+   };
+   useEffect(() => {
+      const fetchUserData = async () => {
+         const res = await axios.get(
+            'http://localhost:8000/api/v1/subscriptions/subscribedChannel',
+            config
+         );
+
+         setSubscribed(res.data.data[0].channelDetails);
+      };
+      if (isLoggedIn) {
+         fetchUserData();
+      } else {
+         setSubscribed([]);
+      }
+   }, [isLoggedIn]);
 
    return (
       <>
@@ -71,7 +109,7 @@ const Sidebar = () => {
          <Button variant="ghost" className="mt-1" disabled>
             Subscriptions
          </Button>
-         <Subscriptions />
+         <Subscriptions subscriptions={subscribe} />
       </>
    );
 };
