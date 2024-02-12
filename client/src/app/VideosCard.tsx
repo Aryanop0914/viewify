@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import {
    Card,
    CardContent,
@@ -10,23 +11,34 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dot } from 'lucide-react';
 import arrUser from './data';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 const VideosCard = () => {
    const navigate = useNavigate();
+   const [videos, setVideos] = useState([]);
+   useEffect(() => {
+      const getallVideos = async () => {
+         const res = await axios.get(
+            'http://localhost:8000/api/v1/videos/getallvideo'
+         );
+         setVideos(res.data.data);
+      };
+      getallVideos();
+   }, []);
    return (
       <>
          <div className="grid grid-cols-1 min-[600px]:grid-cols-2 lg:grid-cols-3">
-            {arrUser.map((video) => (
+            {videos.map((video: any) => (
                <Card
                   className="border-0 shadow-none mx-auto mt-2 max-[470px]:w-full max-[600px]:w-[430px] min-[600px]:w-full"
-                  key={video.id}
+                  key={video?._id}
                >
                   <CardContent
                      className="mt-6"
-                     onClick={() => navigate('/video/1234')}
+                     onClick={() => navigate(`/video/${video?._id}`)}
                   >
                      <AspectRatio ratio={16 / 9} className="bg-muted">
                         <img
-                           src={video.image}
+                           src={video.thumbnail.url}
                            alt="Photo by Drew Beamer"
                            className="rounded-md object-cover"
                         />
@@ -35,10 +47,10 @@ const VideosCard = () => {
                   <div className="flex p-6 items-center">
                      <Avatar
                         onClick={() => {
-                           navigate('/profile/1234');
+                           navigate(`/profile/${video.owner}`);
                         }}
                      >
-                        <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
+                        <AvatarImage src={video.ownerDetails.avatar.url} />
                         <AvatarFallback>CN</AvatarFallback>
                      </Avatar>
                      <CardHeader>
@@ -49,7 +61,10 @@ const VideosCard = () => {
                               {video.views} Views
                            </CardDescription>
                            <Dot size={20} strokeWidth={3} className="m-1" />
-                           <CardDescription> {video.published}</CardDescription>
+                           <CardDescription>
+                              {' '}
+                              {video.createdAt.slice(0, 10)}
+                           </CardDescription>
                         </div>
                      </CardHeader>
                   </div>

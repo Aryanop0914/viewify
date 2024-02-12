@@ -74,8 +74,11 @@ const Sidebar = () => {
             'http://localhost:8000/api/v1/subscriptions/subscribedChannel',
             config
          );
-
-         setSubscribed(res.data.data[0].channelDetails);
+         if (res.data.data === null) {
+            setSubscribed([]);
+         } else {
+            setSubscribed(res.data.data[0].channelDetails);
+         }
       };
       if (isLoggedIn) {
          fetchUserData();

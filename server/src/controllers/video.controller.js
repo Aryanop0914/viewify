@@ -6,7 +6,37 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
-const getAllVideos = asyncHandler(async (req, res) => {
+const getAllVideo = asyncHandler(async (req, res) => {
+  // const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
+  const videos = await Video.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "ownerDetails",
+      },
+    },
+    {
+      $unwind: "$ownerDetails",
+    },
+    {
+      $project: {
+        "ownerDetails.password": 0,
+        "ownerDetails.bio": 0,
+        "ownerDetails.watchHistory": 0,
+        "ownerDetails.dob": 0,
+        "ownerDetails.refreshToken": 0,
+        "ownerDetails.coverImage": 0,
+      },
+    },
+  ]).limit(10);
+  res
+    .status(200)
+    .json(new ApiResponse(200, videos, "Videos fetched Successfully"));
+});
+
+const getAllVideosOfUser = asyncHandler(async (req, res) => {
   // const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   const { userId } = req.params;
   const videos = await Video.find({ owner: userId });
@@ -37,7 +67,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     views: 0,
     isPublished: true,
     duration: video.duration,
-    owner: req.user?.id,
+    owner: req.user?._id,
     "video.url": video.url,
     "video.publicId": video.public_id,
     "thumbnail.url": thumbnail?.url || "",
@@ -57,13 +87,74 @@ const getVideoById = asyncHandler(async (req, res) => {
   if (!isValidObjectId(videoId)) {
     throw new ApiError(400, "Video Id is not Correct");
   }
-  const video = await Video.findById(videoId);
+  const video = await Video.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(videoId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "ownerDetails",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "ownerDetails._id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "ownerDetails._id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+          $size: "$subscribers",
+        },
+        channelsSubscribedToCount: {
+          $size: "$subscribedTo",
+        },
+        isSubscribed: {
+          $cond: {
+            if: {
+              $in: [
+                new mongoose.Types.ObjectId(req.user?._id),
+                "$subscribers.subscriber",
+              ],
+            },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $unwind: "$ownerDetails",
+    },
+    {
+      $project: {
+        subscribers: 0,
+        subscribedTo: 0,
+      },
+    },
+  ]);
   if (!video) {
     throw new ApiError(400, "Something Went Wrong While Fetching video");
   }
   return res
     .status(200)
-    .json(new ApiResponse(200, video, "Video Fetched Succesfully"));
+    .json(new ApiResponse(200, video[0], "Video Fetched Succesfully"));
 });
 
 const updateVideo = asyncHandler(async (req, res) => {
@@ -74,6 +165,17 @@ const updateVideo = asyncHandler(async (req, res) => {
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: delete video
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Video Id is Not valid");
+  }
+  const deletedVideo = await Video.findByIdAndDelete(videoId);
+  if (!deletedVideo) {
+    throw new ApiError(400, "Something Went Wrong While Deleting Video");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, deletedVideo, "Video Deleted Successfully"));
 });
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
@@ -81,7 +183,8 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 });
 
 export {
-  getAllVideos,
+  getAllVideo,
+  getAllVideosOfUser,
   publishAVideo,
   getVideoById,
   updateVideo,

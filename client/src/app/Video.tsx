@@ -49,6 +49,7 @@ const VideoSidebar = () => {
 };
 const Video = () => {
    const { videoId } = useParams();
+   const [subscribed, setSubscribed] = useState<boolean | null>(null);
    const [video, setVideo] = useState<any>();
    const navigate = useNavigate();
    const accessToken = document.cookie
@@ -66,8 +67,29 @@ const Video = () => {
          .get(`http://localhost:8000/api/v1/videos/${videoId}`, config)
          .then((res) => {
             setVideo(res.data.data);
+            if (res.data.data.isSubscribed === true) {
+               setSubscribed(true);
+            } else {
+               setSubscribed(false);
+            }
          });
-   }, [videoId]);
+   }, [videoId, subscribed]);
+   const handleSubscribe = async (ownerId: string) => {
+      try {
+         const res = await axios.post(
+            `http://localhost:8000/api/v1/subscriptions/subscribe/${ownerId}`,
+            {},
+            config
+         );
+         if (res.status === 200) {
+            setSubscribed(!subscribed);
+         } else {
+            console.log('Something Went Wrong');
+         }
+      } catch (error) {
+         console.error('Error subscribing:', error);
+      }
+   };
    if (!video) {
       return <div>Loading...</div>; // or show a loader or handle the loading state
    }
@@ -89,26 +111,31 @@ const Video = () => {
                   <Avatar
                      className="h-14 w-14"
                      onClick={() => {
-                        navigate('/profile/1234');
+                        navigate(`/profile/${video.ownerDetails._id}`);
                      }}
                   >
-                     <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" />
+                     <AvatarImage src={video.ownerDetails.avatar.url} />
                      <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                   <div className="ml-4">
-                     <p className="text-primary text-2xl ">Code With Aryan</p>
+                     <p className="text-primary text-2xl ">
+                        {video.ownerDetails.channelName}
+                     </p>
                      <div className="flex flex-row max-[390px]:text-sm">
                         <p className="text-muted-foreground text-md ">
                            {' '}
-                           123k Subscribers
+                           {video.subscribersCount} Subscribers
                         </p>
-                        <Dot size={20} strokeWidth={3} className="m-1" />
-                        <p className="text-muted-foreground">14 videos</p>
                      </div>
                   </div>
                   <div className="flex flex-row flex-1  justify-between ml-4 mt-8 min-[674px]:mt-0 ">
-                     <Button variant="ghost" className="">
-                        Subscribe
+                     <Button
+                        className=""
+                        onClick={() => {
+                           handleSubscribe(video.owner);
+                        }}
+                     >
+                        {subscribed ? 'Unsubscribe' : 'Subscribe'}
                      </Button>
                      <div className="flex justify-end">
                         <Button variant="ghost">
