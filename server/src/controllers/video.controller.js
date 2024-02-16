@@ -118,6 +118,14 @@ const getVideoById = asyncHandler(async (req, res) => {
       },
     },
     {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "video",
+        as: "likedBy",
+      },
+    },
+    {
       $addFields: {
         subscribersCount: {
           $size: "$subscribers",
@@ -125,11 +133,26 @@ const getVideoById = asyncHandler(async (req, res) => {
         channelsSubscribedToCount: {
           $size: "$subscribedTo",
         },
+        noOfLikes: {
+          $size: "$likedBy",
+        },
+        isLiked: {
+          $cond: {
+            if: {
+              $in: [
+                new mongoose.Types.ObjectId(req?.user._id),
+                "$likedBy.likedBy",
+              ],
+            },
+            then: true,
+            else: false,
+          },
+        },
         isSubscribed: {
           $cond: {
             if: {
               $in: [
-                new mongoose.Types.ObjectId(req.user?._id),
+                new mongoose.Types.ObjectId(req?.user._id),
                 "$subscribers.subscriber",
               ],
             },
@@ -146,6 +169,9 @@ const getVideoById = asyncHandler(async (req, res) => {
       $project: {
         subscribers: 0,
         subscribedTo: 0,
+        "likedBy.video": 0,
+        "likedBy.createdAt": 0,
+        "likedBy.updatedAt": 0,
       },
     },
   ]);

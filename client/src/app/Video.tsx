@@ -50,6 +50,7 @@ const VideoSidebar = () => {
 const Video = () => {
    const { videoId } = useParams();
    const [subscribed, setSubscribed] = useState<boolean | null>(null);
+   const [like, setLike] = useState('none');
    const [video, setVideo] = useState<any>();
    const navigate = useNavigate();
    const accessToken = document.cookie
@@ -72,8 +73,29 @@ const Video = () => {
             } else {
                setSubscribed(false);
             }
+            if (res.data.data.isLiked === true) {
+               setLike('red');
+            } else {
+               setLike('none');
+            }
          });
-   }, [videoId, subscribed]);
+   }, [videoId, subscribed, like]);
+   const handleToggleLikes = async (videoId: string) => {
+      try {
+         const likedVideo: any = await axios.post(
+            `http://localhost:8000/api/v1/likes/toggle/v/${videoId}`,
+            {},
+            config
+         );
+         if (likedVideo && like === 'red') {
+            setLike('none');
+         } else if (likedVideo && like === 'none') {
+            setLike('red');
+         }
+      } catch (error) {
+         console.log(error);
+      }
+   };
    const handleSubscribe = async (ownerId: string) => {
       try {
          const res = await axios.post(
@@ -138,9 +160,14 @@ const Video = () => {
                         {subscribed ? 'Unsubscribe' : 'Subscribe'}
                      </Button>
                      <div className="flex justify-end">
-                        <Button variant="ghost">
-                           <div className="mr-2">Like </div>
-                           <Heart />
+                        <Button
+                           variant="ghost"
+                           onClick={() => {
+                              handleToggleLikes(video._id);
+                           }}
+                        >
+                           <div className="mr-2">{video.noOfLikes} </div>
+                           <Heart color="red" fill={like} />
                         </Button>
                         <Button variant="ghost">
                            <div className="mr-2">Share </div> <Share />
