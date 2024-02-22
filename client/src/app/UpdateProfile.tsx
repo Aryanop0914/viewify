@@ -60,14 +60,7 @@ const UpdateProfile = () => {
    });
 
    const onSubmit = async (data: ProfileFormValues) => {
-      const accessToken = document.cookie
-         .split('; ')
-         .find((row) => row.startsWith('accessToken='))
-         ?.split('=')[1];
       const config = {
-         headers: {
-            Authorization: `Bearer ${accessToken}`,
-         },
          withCredentials: true,
       };
       setLoading(true);

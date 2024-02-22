@@ -76,14 +76,7 @@ const UserInfo = () => {
    const [user, setUser] = useState<any>();
    const [videos, setVideos] = useState([]);
    const [subscribed, setSubscribed] = useState<boolean | null>(null);
-   const accessToken = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('accessToken='))
-      ?.split('=')[1];
    const config = {
-      headers: {
-         Authorization: `Bearer ${accessToken}`,
-      },
       withCredentials: true,
    };
    useEffect(() => {

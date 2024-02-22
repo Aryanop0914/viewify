@@ -1,6 +1,6 @@
 // import { useParams } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dot, Heart, Share } from 'lucide-react';
+import { Dot, Heart, SendHorizontal, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
    Card,
@@ -13,6 +13,12 @@ import arrUser from './data';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useAuthStore } from '@/store/authStore';
+import { Textarea } from '@/components/ui/textarea';
+
+const Comments = () => {
+   return <h1> comments</h1>;
+};
 const VideoSidebar = () => {
    const navigate = useNavigate();
    return (
@@ -49,18 +55,13 @@ const VideoSidebar = () => {
 };
 const Video = () => {
    const { videoId } = useParams();
+   const [user, setUser] = useState<any>();
+   const { isLoggedIn } = useAuthStore();
    const [subscribed, setSubscribed] = useState<boolean | null>(null);
    const [like, setLike] = useState('none');
    const [video, setVideo] = useState<any>();
    const navigate = useNavigate();
-   const accessToken = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('accessToken='))
-      ?.split('=')[1];
    const config = {
-      headers: {
-         Authorization: `Bearer ${accessToken}`,
-      },
       withCredentials: true,
    };
    useEffect(() => {
@@ -112,6 +113,18 @@ const Video = () => {
          console.error('Error subscribing:', error);
       }
    };
+   useEffect(() => {
+      if (isLoggedIn) {
+         axios
+            .get('http://localhost:8000/api/v1/users/current-user', config)
+            .then((res) => {
+               setUser(res.data.data);
+            })
+            .catch(function (error) {
+               console.log(error);
+            });
+      }
+   }, [isLoggedIn]);
    if (!video) {
       return <div>Loading...</div>; // or show a loader or handle the loading state
    }
@@ -174,6 +187,30 @@ const Video = () => {
                         </Button>
                      </div>
                   </div>
+               </div>
+               <div className=" bg-gray-900 m-4 border-2 h-40 rounded-md text-gray-500 p-4">
+                  {video.description}
+               </div>
+               <div className="m-4 border-2 h-full rounded-md text-gray-500 px-4">
+                  <div className="h-16 flex flex-row items-center">
+                     <div className="text-white text-2xl">30,000 Comments</div>
+                  </div>
+                  <div className="mt-3 flex flex-row">
+                     <Avatar>
+                        <AvatarImage src={user?.avatar?.url} />
+                        <AvatarFallback>Avatar</AvatarFallback>
+                     </Avatar>
+                     <div className="w-full pl-3">
+                        <Textarea
+                           placeholder="Add Your Comment"
+                           className="text-white "
+                        />
+                     </div>
+                     <div className="pl-4">
+                        <SendHorizontal color="white" />
+                     </div>
+                  </div>
+                  <Comments />
                </div>
             </div>
             <div className="basis-2/5 border-0 hidden lg:block">

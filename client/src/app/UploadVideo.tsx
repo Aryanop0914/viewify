@@ -53,14 +53,7 @@ const UploadVideo = () => {
    };
    const onSubmitUpload = (data: VideoFormValues) => {
       setLoading(true);
-      const accessToken = document.cookie
-         .split('; ')
-         .find((row) => row.startsWith('accessToken='))
-         ?.split('=')[1];
       const config = {
-         headers: {
-            Authorization: `Bearer ${accessToken}`,
-         },
          withCredentials: true,
       };
       const fd = new FormData();

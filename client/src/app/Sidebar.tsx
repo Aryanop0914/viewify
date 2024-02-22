@@ -57,15 +57,8 @@ const Sidebar = () => {
          symbol: <Settings strokeWidth={2} />,
       },
    ];
-   const accessToken = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('accessToken='))
-      ?.split('=')[1];
 
    const config = {
-      headers: {
-         Authorization: `Bearer ${accessToken}`,
-      },
       withCredentials: true,
    };
    useEffect(() => {

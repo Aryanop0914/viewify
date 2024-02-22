@@ -29,15 +29,7 @@ const Uploads = () => {
       const fd = new FormData();
       fd.append('avatar', files.avatar);
       fd.append('coverImage', files.coverImage);
-
-      const accessToken = document.cookie
-         .split('; ')
-         .find((row) => row.startsWith('accessToken='))
-         ?.split('=')[1];
       const config = {
-         headers: {
-            Authorization: `Bearer ${accessToken}`,
-         },
          withCredentials: true,
       };
       setLoading(true);

@@ -33,21 +33,16 @@ const NavLinks = () => {
    );
 };
 const Navbar = () => {
-   const accessToken = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('accessToken='))
-      ?.split('=')[1];
    const config = {
       headers: {
          'Content-Type': 'application/json',
-         Authorization: `Bearer ${accessToken}`,
       },
       withCredentials: true,
    };
    const [user, setUser] = useState<any>();
    const navigate = useNavigate();
    const [isOpen, setIsOpen] = useState(false);
-   const { isLoggedIn, logout, refreshTokens } = useAuthStore();
+   const { isLoggedIn, logout } = useAuthStore();
    const [loggedin, setLoggedIn] = useState(isLoggedIn);
    const [theme1, setTheme1] = useState(true);
    const { setTheme } = useTheme();
@@ -63,26 +58,26 @@ const Navbar = () => {
       }
       setTheme1(!theme1);
    };
-   useEffect(() => {
-      const checkAccessTokenValidity = async () => {
-         if (accessToken) {
-            const decodedToken = parseJwt(accessToken);
-            const expirationTime = decodedToken.exp * 1000;
-            const currentTime = Date.now();
+   // useEffect(() => {
+   //    const checkAccessTokenValidity = async () => {
+   //       if (accessToken) {
+   //          const decodedToken = parseJwt(accessToken);
+   //          const expirationTime = decodedToken.exp * 1000;
+   //          const currentTime = Date.now();
 
-            if (expirationTime < currentTime) {
-               try {
-                  await refreshTokens(); // Refresh the tokens
-               } catch (error) {
-                  console.error('Error refreshing tokens:', error);
-                  navigate('/login');
-               }
-            }
-         }
-      };
+   //          if (expirationTime < currentTime) {
+   //             try {
+   //                await refreshTokens(); // Refresh the tokens
+   //             } catch (error) {
+   //                console.error('Error refreshing tokens:', error);
+   //                navigate('/login');
+   //             }
+   //          }
+   //       }
+   //    };
 
-      checkAccessTokenValidity();
-   }, [accessToken, navigate, refreshTokens]);
+   //    checkAccessTokenValidity();
+   // }, [accessToken, navigate, refreshTokens]);
    useEffect(() => {
       const handleResize = () => {
          if (window.innerWidth > 768) {
@@ -125,7 +120,14 @@ const Navbar = () => {
       <header className="bg-background top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between p-4 text-foreground ">
          <div className="flex items-center">
             <div className="flex logo h-10 w-10 items-center">
-               <Play size={30} className="text-primary" strokeWidth={3} />
+               <Play
+                  size={30}
+                  className="text-primary"
+                  strokeWidth={3}
+                  onClick={() => {
+                     navigate('/');
+                  }}
+               />
             </div>
             <h1 className="text-xlhover:italic">Viewify</h1>
          </div>
@@ -205,18 +207,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
-function parseJwt(token: string) {
-   const base64Url = token.split('.')[1];
-   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-   const jsonPayload = decodeURIComponent(
-      atob(base64)
-         .split('')
-         .map((c) => {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-         })
-         .join('')
-   );
-
-   return JSON.parse(jsonPayload);
-}
