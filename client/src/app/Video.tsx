@@ -15,9 +15,39 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { Textarea } from '@/components/ui/textarea';
-
-const Comments = () => {
-   return <h1> comments</h1>;
+const config = {
+   withCredentials: true,
+};
+const Comments = (props: any) => {
+   const [comments, setComments] = useState<any>([]);
+   useEffect(() => {
+      axios
+         .get(`http://localhost:8000/api/v1/comments/${props.videoId}`, config)
+         .then((res) => {
+            if (res) {
+               setComments(res.data.data);
+            } else {
+               setComments([]);
+            }
+         });
+   }, []);
+   return (
+      <div className="mt-6">
+         {comments.map((comment: any, index: number) => (
+            <>
+               <div className="mt-3 flex items-center">
+                  <Avatar>
+                     <AvatarImage src={comment.ownerDetails?.avatar?.url} />
+                     <AvatarFallback>Avatar</AvatarFallback>
+                  </Avatar>
+                  <h1 key={index} className="ml-3 text-white">
+                     {comment.content}
+                  </h1>
+               </div>
+            </>
+         ))}
+      </div>
+   );
 };
 const VideoSidebar = () => {
    const navigate = useNavigate();
@@ -54,6 +84,7 @@ const VideoSidebar = () => {
    );
 };
 const Video = () => {
+   const [comment, setComment] = useState('');
    const { videoId } = useParams();
    const [user, setUser] = useState<any>();
    const { isLoggedIn } = useAuthStore();
@@ -111,6 +142,20 @@ const Video = () => {
          }
       } catch (error) {
          console.error('Error subscribing:', error);
+      }
+   };
+   const handleComment = async (videoId: string) => {
+      try {
+         const res = await axios.post(
+            `http://localhost:8000/api/v1/comments/${videoId}`,
+            { content: comment },
+            config
+         );
+         if (res) {
+            console.log(res);
+         }
+      } catch (error) {
+         console.log(error);
       }
    };
    useEffect(() => {
@@ -203,14 +248,22 @@ const Video = () => {
                      <div className="w-full pl-3">
                         <Textarea
                            placeholder="Add Your Comment"
-                           className="text-white "
+                           className="text-white"
+                           onChange={(e) => {
+                              setComment(e.target.value);
+                           }}
                         />
                      </div>
                      <div className="pl-4">
-                        <SendHorizontal color="white" />
+                        <SendHorizontal
+                           color="white"
+                           onClick={() => {
+                              handleComment(video._id);
+                           }}
+                        />
                      </div>
                   </div>
-                  <Comments />
+                  <Comments videoId={video._id} />
                </div>
             </div>
             <div className="basis-2/5 border-0 hidden lg:block">
