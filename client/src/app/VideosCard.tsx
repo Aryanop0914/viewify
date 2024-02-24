@@ -36,11 +36,11 @@ const VideosCard = () => {
                      className="mt-6"
                      onClick={() => navigate(`/video/${video?._id}`)}
                   >
-                     <AspectRatio ratio={16 / 9} className="bg-muted">
+                     <AspectRatio ratio={16 / 9} className=" w-full h-60">
                         <img
                            src={video.thumbnail.url}
                            alt="Photo by Drew Beamer"
-                           className="rounded-md object-cover"
+                           className="rounded-md object-cover h-full"
                         />
                      </AspectRatio>
                   </CardContent>

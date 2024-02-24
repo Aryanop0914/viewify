@@ -15,40 +15,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { Textarea } from '@/components/ui/textarea';
-const config = {
-   withCredentials: true,
-};
-const Comments = (props: any) => {
-   const [comments, setComments] = useState<any>([]);
-   useEffect(() => {
-      axios
-         .get(`http://localhost:8000/api/v1/comments/${props.videoId}`, config)
-         .then((res) => {
-            if (res) {
-               setComments(res.data.data);
-            } else {
-               setComments([]);
-            }
-         });
-   }, []);
-   return (
-      <div className="mt-6">
-         {comments.map((comment: any, index: number) => (
-            <>
-               <div className="mt-3 flex items-center">
-                  <Avatar>
-                     <AvatarImage src={comment.ownerDetails?.avatar?.url} />
-                     <AvatarFallback>Avatar</AvatarFallback>
-                  </Avatar>
-                  <h1 key={index} className="ml-3 text-white">
-                     {comment.content}
-                  </h1>
-               </div>
-            </>
-         ))}
-      </div>
-   );
-};
+
 const VideoSidebar = () => {
    const navigate = useNavigate();
    return (
@@ -85,6 +52,7 @@ const VideoSidebar = () => {
 };
 const Video = () => {
    const [comment, setComment] = useState('');
+   const [comments, setComments] = useState<any>([]);
    const { videoId } = useParams();
    const [user, setUser] = useState<any>();
    const { isLoggedIn } = useAuthStore();
@@ -100,6 +68,7 @@ const Video = () => {
          .get(`http://localhost:8000/api/v1/videos/${videoId}`, config)
          .then((res) => {
             setVideo(res.data.data);
+            getComment();
             if (res.data.data.isSubscribed === true) {
                setSubscribed(true);
             } else {
@@ -152,7 +121,7 @@ const Video = () => {
             config
          );
          if (res) {
-            console.log(res);
+            getComment();
          }
       } catch (error) {
          console.log(error);
@@ -170,6 +139,17 @@ const Video = () => {
             });
       }
    }, [isLoggedIn]);
+   const getComment = () => {
+      axios
+         .get(`http://localhost:8000/api/v1/comments/${videoId}`, config)
+         .then((res) => {
+            if (res) {
+               setComments(res.data.data);
+            } else {
+               setComments([]);
+            }
+         });
+   };
    if (!video) {
       return <div>Loading...</div>; // or show a loader or handle the loading state
    }
@@ -181,7 +161,7 @@ const Video = () => {
                <div className="m-4 md:m-8">
                   <iframe
                      src={video?.video.url}
-                     className="rounded-lg object-cover w-[800px] h-[500px]"
+                     className="rounded-lg object-cover w-full h-[300px] md:h-[500px]"
                   />
                </div>
                <div className="mx-8 mb-2 lg:-mt-4 lg:mx-12">
@@ -263,7 +243,24 @@ const Video = () => {
                         />
                      </div>
                   </div>
-                  <Comments videoId={video._id} />
+                  <div className="mt-6">
+                     {comments.map((comment: any) => (
+                        <div
+                           className="mt-3 flex items-center"
+                           key={comment._id}
+                        >
+                           <Avatar>
+                              <AvatarImage
+                                 src={comment.ownerDetails?.avatar?.url}
+                              />
+                              <AvatarFallback>Avatar</AvatarFallback>
+                           </Avatar>
+                           <h1 className="ml-3 text-white">
+                              {comment.content}
+                           </h1>
+                        </div>
+                     ))}
+                  </div>
                </div>
             </div>
             <div className="basis-2/5 border-0 hidden lg:block">
