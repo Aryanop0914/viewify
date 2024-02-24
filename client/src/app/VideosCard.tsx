@@ -9,7 +9,6 @@ import {
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dot } from 'lucide-react';
-import arrUser from './data';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 const VideosCard = () => {

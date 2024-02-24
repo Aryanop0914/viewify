@@ -9,7 +9,6 @@ import {
    CardHeader,
    CardTitle,
 } from '@/components/ui/card';
-import arrUser from './data';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -18,19 +17,29 @@ import { Textarea } from '@/components/ui/textarea';
 
 const VideoSidebar = () => {
    const navigate = useNavigate();
+   const [videos, setVideos] = useState<any>([]);
+   useEffect(() => {
+      const getallVideos = async () => {
+         const res = await axios.get(
+            'http://localhost:8000/api/v1/videos/getallvideo'
+         );
+         setVideos(res.data.data);
+      };
+      getallVideos();
+   }, []);
    return (
       <div className="flex flex-col mt-4">
-         {arrUser.map((video) => (
+         {videos.map((video: any) => (
             <Card
                className="flex flex-row shadow-none p-2 border-0 w-full"
-               key={video.id}
+               key={video._id}
                onClick={() => {
                   navigate('/video/1234');
                }}
             >
                <CardContent className="flex-none p-1 h-full w-[230px]">
                   <img
-                     src={video.image}
+                     src={video?.thumbnail.url}
                      alt="Video Thumbnail"
                      className="rounded-md object-cover "
                   />
@@ -39,10 +48,22 @@ const VideoSidebar = () => {
                   <CardTitle className="text-lg text-wrap">
                      {video.title}
                   </CardTitle>
+                  <div className="flex ">
+                     <Avatar className="h-7 w-7">
+                        <AvatarImage src={video.ownerDetails.avatar.url} />
+                        <AvatarFallback>CN</AvatarFallback>
+                     </Avatar>
+                     <div className="ml-2 text-primary">
+                        <p>{video.ownerDetails.channelName}</p>
+                     </div>
+                  </div>
                   <div className="flex items-center ">
                      <CardDescription>{video.views} Views</CardDescription>
                      <Dot size={20} strokeWidth={3} className="m-1" />
-                     <CardDescription> {video.published}</CardDescription>
+                     <CardDescription>
+                        {' '}
+                        {video.createdAt.slice(0, 10)}
+                     </CardDescription>
                   </div>
                </CardHeader>
             </Card>
@@ -158,7 +179,7 @@ const Video = () => {
       <>
          <div className="flex flex-row h-max">
             <div className="flex flex-col w-full lg:basis-3/5 border-0">
-               <div className="m-4 md:m-8">
+               <div className="mx-4 md:mx-8">
                   <iframe
                      src={video?.video.url}
                      className="rounded-lg object-cover w-full h-[300px] md:h-[500px]"
@@ -213,12 +234,12 @@ const Video = () => {
                      </div>
                   </div>
                </div>
-               <div className=" bg-gray-900 m-4 border-2 h-40 rounded-md text-gray-500 p-4">
+               <div className=" m-4 border-2 h-40 rounded-md text-gray-500 p-4">
                   {video.description}
                </div>
                <div className="m-4 border-2 h-full rounded-md text-gray-500 px-4">
                   <div className="h-16 flex flex-row items-center">
-                     <div className="text-white text-2xl">30,000 Comments</div>
+                     <div className="text-2xl">30,000 Comments</div>
                   </div>
                   <div className="mt-3 flex flex-row">
                      <Avatar>
@@ -228,7 +249,6 @@ const Video = () => {
                      <div className="w-full pl-3">
                         <Textarea
                            placeholder="Add Your Comment"
-                           className="text-white"
                            onChange={(e) => {
                               setComment(e.target.value);
                            }}
@@ -236,7 +256,7 @@ const Video = () => {
                      </div>
                      <div className="pl-4">
                         <SendHorizontal
-                           color="white"
+                           className="text-primary"
                            onClick={() => {
                               handleComment(video._id);
                            }}
@@ -255,9 +275,7 @@ const Video = () => {
                               />
                               <AvatarFallback>Avatar</AvatarFallback>
                            </Avatar>
-                           <h1 className="ml-3 text-white">
-                              {comment.content}
-                           </h1>
+                           <h1 className="ml-3">{comment.content}</h1>
                         </div>
                      ))}
                   </div>
