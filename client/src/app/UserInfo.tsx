@@ -58,7 +58,7 @@ const VideoCardHorizontal = (props: any) => {
                            <Dot size={20} strokeWidth={3} className="m-1" />
                            <CardDescription>
                               {' '}
-                              {video.description}
+                              {video.description.slice(0, 31)}
                            </CardDescription>
                         </div>
                      </CardHeader>

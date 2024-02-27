@@ -30,7 +30,7 @@ const getAllVideo = asyncHandler(async (req, res) => {
         "ownerDetails.coverImage": 0,
       },
     },
-  ]).limit(10);
+  ]).limit(20);
   res
     .status(200)
     .json(new ApiResponse(200, videos, "Videos fetched Successfully"));
@@ -140,7 +140,7 @@ const getVideoById = asyncHandler(async (req, res) => {
           $cond: {
             if: {
               $in: [
-                new mongoose.Types.ObjectId(req?.user._id),
+                new mongoose.Types.ObjectId(req?.user?._id),
                 "$likedBy.likedBy",
               ],
             },
@@ -152,7 +152,7 @@ const getVideoById = asyncHandler(async (req, res) => {
           $cond: {
             if: {
               $in: [
-                new mongoose.Types.ObjectId(req?.user._id),
+                new mongoose.Types.ObjectId(req?.user?._id),
                 "$subscribers.subscriber",
               ],
             },

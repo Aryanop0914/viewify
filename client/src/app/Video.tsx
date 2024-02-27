@@ -15,7 +15,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { Textarea } from '@/components/ui/textarea';
 
-const VideoSidebar = () => {
+const VideoSidebar = (props: any) => {
    const navigate = useNavigate();
    const [videos, setVideos] = useState<any>([]);
    useEffect(() => {
@@ -23,10 +23,14 @@ const VideoSidebar = () => {
          const res = await axios.get(
             'http://localhost:8000/api/v1/videos/getallvideo'
          );
-         setVideos(res.data.data);
+         setVideos(
+            res.data.data.filter(
+               (video: any) => video._id !== props.currentVideo
+            )
+         );
       };
       getallVideos();
-   }, []);
+   }, [props.currentVideo]);
    return (
       <div className="flex flex-col mt-4">
          {videos.map((video: any) => (
@@ -34,7 +38,7 @@ const VideoSidebar = () => {
                className="flex flex-row shadow-none p-2 border-0 w-full"
                key={video._id}
                onClick={() => {
-                  navigate('/video/1234');
+                  navigate(`/video/${video._id}`);
                }}
             >
                <CardContent className="flex-none p-1 h-full w-[230px]">
@@ -104,15 +108,19 @@ const Video = () => {
    }, [videoId, subscribed, like]);
    const handleToggleLikes = async (videoId: string) => {
       try {
-         const likedVideo: any = await axios.post(
-            `http://localhost:8000/api/v1/likes/toggle/v/${videoId}`,
-            {},
-            config
-         );
-         if (likedVideo && like === 'red') {
-            setLike('none');
-         } else if (likedVideo && like === 'none') {
-            setLike('red');
+         if (isLoggedIn) {
+            const likedVideo: any = await axios.post(
+               `http://localhost:8000/api/v1/likes/toggle/v/${videoId}`,
+               {},
+               config
+            );
+            if (likedVideo && like === 'red') {
+               setLike('none');
+            } else if (likedVideo && like === 'none') {
+               setLike('red');
+            }
+         } else {
+            return;
          }
       } catch (error) {
          console.log(error);
@@ -120,15 +128,19 @@ const Video = () => {
    };
    const handleSubscribe = async (ownerId: string) => {
       try {
-         const res = await axios.post(
-            `http://localhost:8000/api/v1/subscriptions/subscribe/${ownerId}`,
-            {},
-            config
-         );
-         if (res.status === 200) {
-            setSubscribed(!subscribed);
+         if (isLoggedIn) {
+            const res = await axios.post(
+               `http://localhost:8000/api/v1/subscriptions/subscribe/${ownerId}`,
+               {},
+               config
+            );
+            if (res.status === 200) {
+               setSubscribed(!subscribed);
+            } else {
+               console.log('Something Went Wrong');
+            }
          } else {
-            console.log('Something Went Wrong');
+            return;
          }
       } catch (error) {
          console.error('Error subscribing:', error);
@@ -136,13 +148,17 @@ const Video = () => {
    };
    const handleComment = async (videoId: string) => {
       try {
-         const res = await axios.post(
-            `http://localhost:8000/api/v1/comments/${videoId}`,
-            { content: comment },
-            config
-         );
-         if (res) {
-            getComment();
+         if (isLoggedIn) {
+            const res = await axios.post(
+               `http://localhost:8000/api/v1/comments/${videoId}`,
+               { content: comment },
+               config
+            );
+            if (res) {
+               getComment();
+            }
+         } else {
+            return;
          }
       } catch (error) {
          console.log(error);
@@ -185,7 +201,7 @@ const Video = () => {
                      className="rounded-lg object-cover w-full h-[300px] md:h-[500px]"
                   />
                </div>
-               <div className="mx-8 mb-2 lg:-mt-4 lg:mx-12">
+               <div className="mx-8 mb-2 lg:mt-4 lg:mx-12">
                   <p className="text-xl">{video.title}</p>
                </div>
                <div className="mx-6 mt-4 px-4 flex flex-row flex-wrap justify-start items-center">
@@ -282,7 +298,7 @@ const Video = () => {
                </div>
             </div>
             <div className="basis-2/5 border-0 hidden lg:block">
-               <VideoSidebar />
+               <VideoSidebar currentVideo={video._id} />
             </div>
          </div>
       </>
