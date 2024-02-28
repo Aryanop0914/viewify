@@ -34,7 +34,7 @@ router.route("/getallvideo").get(getAllVideo);
 
 router
   .route("/:videoId")
-  .get(getVideoById)
+  .get(verifyJWT, getVideoById)
   .delete(deleteVideo)
   .patch(upload.single("thumbnail"), updateVideo, verifyJWT);
 

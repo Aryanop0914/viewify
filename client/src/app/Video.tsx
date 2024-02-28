@@ -104,6 +104,7 @@ const Video = () => {
             } else {
                setLike('none');
             }
+            console.log(like);
          });
    }, [videoId, subscribed, like]);
    const handleToggleLikes = async (videoId: string) => {
@@ -285,7 +286,13 @@ const Video = () => {
                            className="mt-3 flex items-center"
                            key={comment._id}
                         >
-                           <Avatar>
+                           <Avatar
+                              onClick={() =>
+                                 navigate(
+                                    `/profile/${comment.ownerDetails._id}`
+                                 )
+                              }
+                           >
                               <AvatarImage
                                  src={comment.ownerDetails?.avatar?.url}
                               />

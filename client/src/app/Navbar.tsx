@@ -22,6 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/store/authStore';
 import axios from 'axios';
+import useSearchStore from '@/store/searchStore';
 
 const NavLinks = () => {
    return (
@@ -39,6 +40,7 @@ const Navbar = () => {
       },
       withCredentials: true,
    };
+   const { updateSearchQuery } = useSearchStore();
    const [user, setUser] = useState<any>();
    const navigate = useNavigate();
    const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +48,6 @@ const Navbar = () => {
    const [loggedin, setLoggedIn] = useState(isLoggedIn);
    const [theme1, setTheme1] = useState(true);
    const { setTheme } = useTheme();
-
    const toggleNavbar = () => {
       setIsOpen(!isOpen);
    };
@@ -58,26 +59,6 @@ const Navbar = () => {
       }
       setTheme1(!theme1);
    };
-   // useEffect(() => {
-   //    const checkAccessTokenValidity = async () => {
-   //       if (accessToken) {
-   //          const decodedToken = parseJwt(accessToken);
-   //          const expirationTime = decodedToken.exp * 1000;
-   //          const currentTime = Date.now();
-
-   //          if (expirationTime < currentTime) {
-   //             try {
-   //                await refreshTokens(); // Refresh the tokens
-   //             } catch (error) {
-   //                console.error('Error refreshing tokens:', error);
-   //                navigate('/login');
-   //             }
-   //          }
-   //       }
-   //    };
-
-   //    checkAccessTokenValidity();
-   // }, [accessToken, navigate, refreshTokens]);
    useEffect(() => {
       const handleResize = () => {
          if (window.innerWidth > 768) {
@@ -135,6 +116,9 @@ const Navbar = () => {
             className="w-1/3  max-sm:hidden"
             id="search"
             placeholder="Search"
+            onChange={(e) => {
+               updateSearchQuery(e.target.value);
+            }}
          />
          <nav className="flex w-1/3 justify-end items-center">
             <div className="hidden w-full justify-around md:flex">
