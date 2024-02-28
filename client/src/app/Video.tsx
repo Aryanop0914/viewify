@@ -104,7 +104,6 @@ const Video = () => {
             } else {
                setLike('none');
             }
-            console.log(like);
          });
    }, [videoId, subscribed, like]);
    const handleToggleLikes = async (videoId: string) => {
