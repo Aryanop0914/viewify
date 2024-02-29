@@ -6,6 +6,8 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useAuthStore } from '@/store/authStore';
 const Subscriptions = (props: any) => {
    const subscriptions = props.subscriptions;
@@ -63,14 +65,18 @@ const Sidebar = () => {
    };
    useEffect(() => {
       const fetchUserData = async () => {
-         const res = await axios.get(
-            'http://localhost:8000/api/v1/subscriptions/subscribedChannel',
-            config
-         );
-         if (res.data.data === null) {
-            setSubscribed([]);
-         } else {
-            setSubscribed(res.data.data[0].channelDetails);
+         try {
+            const res = await axios.get(
+               'http://localhost:8000/api/v1/subscriptions/subscribedChannel',
+               config
+            );
+            if (res.data.data === null) {
+               setSubscribed([]);
+            } else {
+               setSubscribed(res.data.data[0].channelDetails);
+            }
+         } catch (error: any) {
+            errorToast(error.response.data.message);
          }
       };
       if (isLoggedIn) {
@@ -79,9 +85,19 @@ const Sidebar = () => {
          setSubscribed([]);
       }
    }, [isLoggedIn]);
-
+   const errorToast = (message: any) =>
+      toast.error(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
+   // const successToast = (message: any) =>
+   //    toast.success(`${message}`, {
+   //       position: 'bottom-center',
+   //       theme: 'colored',
+   //    });
    return (
       <>
+         <ToastContainer />
          <nav className="flex mt-5 mx-3 flex-col justify-center lg:space-x-0 lg:space-y-1">
             {items.map((item) => (
                <NavLink

@@ -12,21 +12,33 @@ import { Dot } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useSearchStore from '@/store/searchStore';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const VideosCard = () => {
    const { searchQuery } = useSearchStore();
    const navigate = useNavigate();
    const [videos, setVideos] = useState([]);
    useEffect(() => {
       const getallVideos = async () => {
-         const res = await axios.get(
-            'http://localhost:8000/api/v1/videos/getallvideo'
-         );
-         setVideos(res.data.data);
+         try {
+            const res = await axios.get(
+               'http://localhost:8000/api/v1/videos/getallvideo'
+            );
+            setVideos(res.data.data);
+         } catch (error: any) {
+            errorToast(error.response.data.message);
+         }
       };
       getallVideos();
    }, []);
+   const errorToast = (message: any) =>
+      toast.error(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
    return (
       <>
+         <ToastContainer />
          <div className="grid grid-cols-1 min-[600px]:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
             {videos
                .filter((video: any) => {

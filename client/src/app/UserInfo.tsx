@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const VideoCardHorizontal = (props: any) => {
    const videos = props.videos;
 
@@ -99,8 +101,8 @@ const UserInfo = () => {
                config
             );
             setVideos(videosRes.data.data);
-         } catch (error) {
-            console.error('Error fetching user data:', error);
+         } catch (error: any) {
+            errorToast(error.response.data.message);
          }
       };
 
@@ -116,16 +118,26 @@ const UserInfo = () => {
          );
          if (res.status === 200) {
             setSubscribed(!subscribed);
-         } else {
-            console.log('Something Went Wrong');
+            successToast(res.data.message);
          }
-      } catch (error) {
+      } catch (error: any) {
          console.error('Error subscribing:', error);
+         errorToast(error.response.data.message);
       }
    };
-
+   const errorToast = (message: any) =>
+      toast.error(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
+   const successToast = (message: any) =>
+      toast.success(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
    return (
       <div className="w-full h-screen overflow-y-auto flex justify-center">
+         <ToastContainer />
          <ResizablePanelGroup
             direction="vertical"
             className="w-full rounded-lg mx-2"

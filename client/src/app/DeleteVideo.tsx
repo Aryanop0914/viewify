@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const DeleteVideo = () => {
    const [videos, setVideos] = useState([]);
    const { isLoggedIn } = useAuthStore();
@@ -20,11 +22,15 @@ const DeleteVideo = () => {
    };
    useEffect(() => {
       const fetchVideos = async (userId: string) => {
-         const videosRes = await axios.get(
-            `http://localhost:8000/api/v1/videos/getvideo/${userId}`,
-            config
-         );
-         setVideos(videosRes.data.data);
+         try {
+            const videosRes = await axios.get(
+               `http://localhost:8000/api/v1/videos/getvideo/${userId}`,
+               config
+            );
+            setVideos(videosRes.data.data);
+         } catch (error: any) {
+            errorToast(error.response.data.message);
+         }
       };
       if (isLoggedIn) {
          const fetchData = async () => {
@@ -35,8 +41,8 @@ const DeleteVideo = () => {
                );
                const userid = user.data.data._id;
                fetchVideos(userid);
-            } catch (error) {
-               console.error('Error fetching user data:', error);
+            } catch (error: any) {
+               errorToast(error.response.data.message);
             }
          };
          fetchData();
@@ -45,16 +51,29 @@ const DeleteVideo = () => {
       }
    }, [isLoggedIn]);
    const deleteVideo = async (videoId: string) => {
-      const deletedVideo = await axios.delete(
-         `http://localhost:8000/api/v1/videos/${videoId}`
-      );
-      if (deletedVideo) {
-         console.log('Video Deleted SuccessFully');
-      }
+      await axios
+         .delete(`http://localhost:8000/api/v1/videos/${videoId}`)
+         .then((res) => {
+            successToast(res.data.message);
+         })
+         .catch((err) => {
+            errorToast(err.response.data.message);
+         });
    };
+   const errorToast = (message: any) =>
+      toast.error(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
+   const successToast = (message: any) =>
+      toast.success(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
    return (
       <>
          <div className="grid grid-cols-1 min-[600px]:grid-cols-2 lg:grid-cols-3">
+            <ToastContainer />
             {videos.map((video: any) => (
                <Card
                   className="border-0 shadow-none mx-auto mt-2 max-[470px]:w-full max-[600px]:w-[430px] min-[600px]:w-full"

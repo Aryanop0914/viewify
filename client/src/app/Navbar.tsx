@@ -22,6 +22,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuthStore } from '@/store/authStore';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import useSearchStore from '@/store/searchStore';
 
 const NavLinks = () => {
@@ -77,11 +79,14 @@ const Navbar = () => {
       logout();
       await axios
          .post('http://localhost:8000/api/v1/users/logout', {}, config)
-         .then(() => {
-            navigate('/');
+         .then((res) => {
+            successToast(res.data.message);
+            setTimeout(() => {
+               navigate('/');
+            }, 3000);
          })
-         .catch((err) => {
-            console.log(err);
+         .catch((err: any) => {
+            errorToast(err.response.data.message);
          });
    };
    useEffect(() => {
@@ -93,100 +98,116 @@ const Navbar = () => {
                setUser(res.data.data);
             })
             .catch(function (error) {
-               console.log(error);
+               errorToast(error.response.data.message);
             });
       }
    }, [isLoggedIn]);
+   const errorToast = (message: any) =>
+      toast.error(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
+   const successToast = (message: any) =>
+      toast.success(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
    return (
-      <header className="bg-background top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between p-4 text-foreground ">
-         <div className="flex items-center">
-            <div className="flex logo h-10 w-10 items-center">
-               <Play
-                  size={30}
-                  className="text-primary"
-                  strokeWidth={3}
-                  onClick={() => {
-                     navigate('/');
-                  }}
-               />
+      <>
+         <ToastContainer />
+         <header className="bg-background top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between p-4 text-foreground ">
+            <div className="flex items-center">
+               <div className="flex logo h-10 w-10 items-center">
+                  <Play
+                     size={30}
+                     className="text-primary"
+                     strokeWidth={3}
+                     onClick={() => {
+                        navigate('/');
+                     }}
+                  />
+               </div>
+               <h1 className="text-xlhover:italic">Viewify</h1>
             </div>
-            <h1 className="text-xlhover:italic">Viewify</h1>
-         </div>
-         <Input
-            className="w-1/3  max-sm:hidden"
-            id="search"
-            placeholder="Search"
-            onChange={(e) => {
-               updateSearchQuery(e.target.value);
-            }}
-         />
-         <nav className="flex w-1/3 justify-end items-center">
-            <div className="hidden w-full justify-around md:flex">
-               <NavLinks />
-            </div>
-            <div className="justify-end md:hidden mr-2">
-               <AlignJustify onClick={toggleNavbar} className="bg-background" />
-            </div>
-            <Toggle aria-label="Toggle bold" onClick={toggleTheme}>
-               <Lightbulb className="h-4 w-4 mx-1" />
-               <p className="text-base">{theme1 ? 'Dark' : 'Light'}</p>
-            </Toggle>
-         </nav>
-         {loggedin ? (
-            <DropdownMenu>
-               <DropdownMenuTrigger>
-                  <Avatar>
-                     <AvatarImage src={user?.avatar?.url} />
-                     <AvatarFallback>Avatar</AvatarFallback>
-                  </Avatar>
-               </DropdownMenuTrigger>
-               <DropdownMenuContent>
-                  <DropdownMenuItem
-                     onClick={() => navigate(`/profile/${user?._id}`)}
-                  >
-                     <div className="flex justify-between items-center">
-                        <div className="mr-6">My Profile</div>
-                        <User size={20} strokeWidth={2} />
-                     </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/settings')}>
-                     <div className="flex justify-between items-center">
-                        <div className="mr-9">Settings</div>
-                        <Settings size={20} strokeWidth={2} />
-                     </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => logOut()}>
-                     <div className="flex justify-between items-center">
-                        <div className="mr-11">Logout</div>
-                        <LogOut size={20} strokeWidth={2} />
-                     </div>
-                  </DropdownMenuItem>
-               </DropdownMenuContent>
-            </DropdownMenu>
-         ) : (
-            <Button
-               variant="default"
-               className="text-base"
-               onClick={() => {
-                  navigate('/login');
+            <Input
+               className="w-1/3  max-sm:hidden"
+               id="search"
+               placeholder="Search"
+               onChange={(e) => {
+                  updateSearchQuery(e.target.value);
                }}
-            >
-               Login
-            </Button>
-         )}
-         {isOpen && (
-            <div className="flex flex-col items-center my-3 basis-full">
-               <NavLinks />
-            </div>
-         )}
-         <Input
-            className="w-full mt-2 sm:hidden"
-            id="search"
-            placeholder="Search"
-         />
-      </header>
+            />
+            <nav className="flex w-1/3 justify-end items-center">
+               <div className="hidden w-full justify-around md:flex">
+                  <NavLinks />
+               </div>
+               <div className="justify-end md:hidden mr-2">
+                  <AlignJustify
+                     onClick={toggleNavbar}
+                     className="bg-background"
+                  />
+               </div>
+               <Toggle aria-label="Toggle bold" onClick={toggleTheme}>
+                  <Lightbulb className="h-4 w-4 mx-1" />
+                  <p className="text-base">{theme1 ? 'Dark' : 'Light'}</p>
+               </Toggle>
+            </nav>
+            {loggedin ? (
+               <DropdownMenu>
+                  <DropdownMenuTrigger>
+                     <Avatar>
+                        <AvatarImage src={user?.avatar?.url} />
+                        <AvatarFallback>Avatar</AvatarFallback>
+                     </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                     <DropdownMenuItem
+                        onClick={() => navigate(`/profile/${user?._id}`)}
+                     >
+                        <div className="flex justify-between items-center">
+                           <div className="mr-6">My Profile</div>
+                           <User size={20} strokeWidth={2} />
+                        </div>
+                     </DropdownMenuItem>
+                     <DropdownMenuSeparator />
+                     <DropdownMenuItem onClick={() => navigate('/settings')}>
+                        <div className="flex justify-between items-center">
+                           <div className="mr-9">Settings</div>
+                           <Settings size={20} strokeWidth={2} />
+                        </div>
+                     </DropdownMenuItem>
+                     <DropdownMenuSeparator />
+                     <DropdownMenuItem onClick={() => logOut()}>
+                        <div className="flex justify-between items-center">
+                           <div className="mr-11">Logout</div>
+                           <LogOut size={20} strokeWidth={2} />
+                        </div>
+                     </DropdownMenuItem>
+                  </DropdownMenuContent>
+               </DropdownMenu>
+            ) : (
+               <Button
+                  variant="default"
+                  className="text-base"
+                  onClick={() => {
+                     navigate('/login');
+                  }}
+               >
+                  Login
+               </Button>
+            )}
+            {isOpen && (
+               <div className="flex flex-col items-center my-3 basis-full">
+                  <NavLinks />
+               </div>
+            )}
+            <Input
+               className="w-full mt-2 sm:hidden"
+               id="search"
+               placeholder="Search"
+            />
+         </header>
+      </>
    );
 };
 

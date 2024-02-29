@@ -16,6 +16,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import BeatLoader from 'react-spinners/BeatLoader';
 import { Textarea } from '@/components/ui/textarea';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const videoFormSchema = z.object({
    title: z
       .string()
@@ -67,18 +69,27 @@ const UploadVideo = () => {
          .then((res) => {
             if (res.status === 200) {
                setLoading(false);
-               console.log(res);
-            } else {
-               console.log('Something Went Wrong');
+               successToast(res.data.message);
             }
          })
          .catch((error) => {
             console.error('Error fetching user data:', error);
+            errorToast(error.response.data.message);
          });
    };
-
+   const errorToast = (message: any) =>
+      toast.error(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
+   const successToast = (message: any) =>
+      toast.success(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
    return (
       <Form {...form}>
+         <ToastContainer />
          <form
             className="space-y-8"
             onSubmit={form.handleSubmit(onSubmitUpload)}

@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import BeatLoader from 'react-spinners/BeatLoader';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Uploads = () => {
    const [loading, setLoading] = useState(false);
    const [files, setFiles] = useState({ avatar: '', coverImage: '' });
@@ -38,15 +40,23 @@ const Uploads = () => {
          .then((res) => {
             if (res.status === 200) {
                setLoading(false);
-            } else {
-               console.log('Something Went Wrong');
+               successToast(res.data.message);
             }
          })
          .catch((error) => {
-            console.error('Error fetching user data:', error);
+            errorToast(error.response.data.message);
          });
    };
-
+   const errorToast = (message: any) =>
+      toast.error(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
+   const successToast = (message: any) =>
+      toast.success(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
    return (
       <Form {...form}>
          <form className="space-y-8" onSubmit={handleSubmit(onSubmitUpload)}>

@@ -14,20 +14,35 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { Textarea } from '@/components/ui/textarea';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+const errorToast = (message: any) =>
+   toast.error(`${message}`, {
+      position: 'bottom-center',
+      theme: 'colored',
+   });
+const successToast = (message: any) =>
+   toast.success(`${message}`, {
+      position: 'bottom-center',
+      theme: 'colored',
+   });
 const VideoSidebar = (props: any) => {
    const navigate = useNavigate();
    const [videos, setVideos] = useState<any>([]);
    useEffect(() => {
       const getallVideos = async () => {
-         const res = await axios.get(
-            'http://localhost:8000/api/v1/videos/getallvideo'
-         );
-         setVideos(
-            res.data.data.filter(
-               (video: any) => video._id !== props.currentVideo
-            )
-         );
+         try {
+            const res = await axios.get(
+               'http://localhost:8000/api/v1/videos/getallvideo'
+            );
+            setVideos(
+               res.data.data.filter(
+                  (video: any) => video._id !== props.currentVideo
+               )
+            );
+         } catch (error: any) {
+            errorToast(error.response.data.message);
+         }
       };
       getallVideos();
    }, [props.currentVideo]);
@@ -160,8 +175,8 @@ const Video = () => {
          } else {
             return;
          }
-      } catch (error) {
-         console.log(error);
+      } catch (error: any) {
+         errorToast(error.response.data.message);
       }
    };
    useEffect(() => {
@@ -193,6 +208,7 @@ const Video = () => {
 
    return (
       <>
+         <ToastContainer />
          <div className="flex flex-row h-max">
             <div className="flex flex-col w-full lg:basis-3/5 border-0">
                <div className="mx-4 md:mx-8">

@@ -4,6 +4,8 @@ import { format } from 'date-fns';
 import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
    Form,
    FormControl,
@@ -73,18 +75,26 @@ const UpdateProfile = () => {
          .then((res) => {
             if (res.status === 200) {
                setLoading(false);
-               console.log(res);
-            } else {
-               console.log('Something Went Wrong');
+               successToast(res.data.message);
             }
          })
          .catch((error) => {
-            console.error('Error fetching user data:', error);
+            errorToast(error.response.data.message);
          });
    };
-
+   const errorToast = (message: any) =>
+      toast.error(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
+   const successToast = (message: any) =>
+      toast.success(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
    return (
       <Form {...form}>
+         <ToastContainer />
          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
                control={form.control}

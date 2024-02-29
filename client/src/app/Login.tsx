@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '../store/authStore';
 import BeatLoader from 'react-spinners/BeatLoader';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
    Form,
    FormControl,
@@ -60,21 +62,33 @@ const Login = () => {
                   res.data.data.accessToken,
                   res.data.data.refreshToken
                );
-               navigate('/');
+               successToast(res.data.message);
+               setTimeout(() => navigate('/'), 3000);
+
                setLoading(false);
             } else {
                console.log(res.status);
             }
          })
          .catch(function (error) {
-            console.log(error);
+            errorToast(error.response.data.message);
          });
    };
-
+   const errorToast = (message: any) =>
+      toast.error(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
+   const successToast = (message: any) =>
+      toast.success(`${message}`, {
+         position: 'bottom-center',
+         theme: 'colored',
+      });
    return (
       <Form {...form}>
          <div className="w-full h-screen flex items-center justify-center">
             <div className="w-[360px] min-[470px]:w-[450px] border-2 p-8 space-y-4 rounded-xl shadow-sm">
+               <ToastContainer />
                <div className="flex justify-end ">
                   <Button
                      variant="outline"
