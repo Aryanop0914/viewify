@@ -208,6 +208,23 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
 });
 
+const addViews = asyncHandler(async (req, res) => {
+  const { videoId } = req.params;
+  if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Video ID is not valid");
+  }
+  const viewstoupdate = await Video.findById(videoId);
+  if (!viewstoupdate) {
+    throw new ApiError(400, "Something Went Wrong while calculating views");
+  }
+  await Video.findOneAndUpdate(
+    { _id: videoId },
+    { views: viewstoupdate.views + 1 },
+    { returnNewDocument: true }
+  );
+  res.status(200).json(new ApiResponse(200, null, "Views Updated"));
+});
+
 export {
   getAllVideo,
   getAllVideosOfUser,
@@ -215,5 +232,6 @@ export {
   getVideoById,
   updateVideo,
   deleteVideo,
+  addViews,
   togglePublishStatus,
 };

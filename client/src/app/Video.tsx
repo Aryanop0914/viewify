@@ -21,11 +21,11 @@ const errorToast = (message: any) =>
       position: 'bottom-center',
       theme: 'colored',
    });
-const successToast = (message: any) =>
-   toast.success(`${message}`, {
-      position: 'bottom-center',
-      theme: 'colored',
-   });
+// const successToast = (message: any) =>
+//    toast.success(`${message}`, {
+//       position: 'bottom-center',
+//       theme: 'colored',
+//    });
 const VideoSidebar = (props: any) => {
    const navigate = useNavigate();
    const [videos, setVideos] = useState<any>([]);
@@ -46,6 +46,15 @@ const VideoSidebar = (props: any) => {
       };
       getallVideos();
    }, [props.currentVideo]);
+   const addViews = async (videoId: string) => {
+      try {
+         await axios.post(
+            `http://localhost:8000/api/v1/videos/addviews/${videoId}`
+         );
+      } catch (error: any) {
+         errorToast(error.response.data.message);
+      }
+   };
    return (
       <div className="flex flex-col mt-4">
          {videos.map((video: any) => (
@@ -61,6 +70,7 @@ const VideoSidebar = (props: any) => {
                      src={video?.thumbnail.url}
                      alt="Video Thumbnail"
                      className="rounded-md object-cover "
+                     onClick={() => addViews(video?._id)}
                   />
                </CardContent>
                <CardHeader>

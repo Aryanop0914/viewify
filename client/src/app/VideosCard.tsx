@@ -36,6 +36,15 @@ const VideosCard = () => {
          position: 'bottom-center',
          theme: 'colored',
       });
+   const addViews = async (videoId: string) => {
+      try {
+         await axios.post(
+            `http://localhost:8000/api/v1/videos/addviews/${videoId}`
+         );
+      } catch (error: any) {
+         errorToast(error.response.data.message);
+      }
+   };
    return (
       <>
          <ToastContainer />
@@ -60,10 +69,11 @@ const VideosCard = () => {
                               src={video.thumbnail.url}
                               alt="Photo by Drew Beamer"
                               className="rounded-md object-cover h-full"
+                              onClick={() => addViews(video?._id)}
                            />
                         </AspectRatio>
                      </CardContent>
-                     <div className="flex p-6 items-center">
+                     <div className="flex px-6 items-center">
                         <Avatar
                            onClick={() => {
                               navigate(`/profile/${video.owner}`);
@@ -76,8 +86,8 @@ const VideosCard = () => {
                            <CardTitle className="text-lg">
                               {video.title}
                            </CardTitle>
-                           <CardDescription>
-                              {video.channelName}
+                           <CardDescription className="text-primary text-lg">
+                              {video.ownerDetails.channelName}
                            </CardDescription>
                            <div className="flex items-center ">
                               <CardDescription>

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  addViews,
   deleteVideo,
   getAllVideo,
   getAllVideosOfUser,
@@ -39,5 +40,6 @@ router
   .patch(upload.single("thumbnail"), updateVideo, verifyJWT);
 
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus, verifyJWT);
+router.route("/addviews/:videoId").post(addViews);
 
 export default router;
