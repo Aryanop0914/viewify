@@ -26,6 +26,7 @@ import commentRouter from "./routes/comment.routes.js";
 import likeRouter from "./routes/like.routes.js";
 import playlistRouter from "./routes/playlist.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
+import { ApiResponse } from "./utils/ApiResponse.js";
 
 //routes declaration
 app.use("/api/v1/healthcheck", healthcheckRouter);
@@ -39,5 +40,16 @@ app.use("/api/v1/playlist", playlistRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
 
 // http://localhost:8000/api/v1/users/register
+app.use((err, req, res, next) => {
+  // Ensure content type is set to JSON
+  res.setHeader("Content-Type", "application/json");
+
+  // Handle errors and send JSON response
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    errors: err.errors || [],
+  });
+});
 
 export { app };

@@ -189,6 +189,7 @@ const updateVideo = asyncHandler(async (req, res) => {
 });
 
 const deleteVideo = asyncHandler(async (req, res) => {
+  console.log(req.user);
   const { videoId } = req.params;
   //TODO: delete video
   if (!isValidObjectId(videoId)) {

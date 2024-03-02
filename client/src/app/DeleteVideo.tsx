@@ -51,13 +51,15 @@ const DeleteVideo = () => {
       }
    }, [isLoggedIn]);
    const deleteVideo = async (videoId: string) => {
+      console.log('hello');
+
       await axios
          .delete(`http://localhost:8000/api/v1/videos/${videoId}`)
          .then((res) => {
             successToast(res.data.message);
          })
-         .catch((err) => {
-            errorToast(err.response.data.message);
+         .catch((error) => {
+            errorToast(error?.response.data.message);
          });
    };
    const errorToast = (message: any) =>

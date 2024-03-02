@@ -70,13 +70,13 @@ const Sidebar = () => {
                'http://localhost:8000/api/v1/subscriptions/subscribedChannel',
                config
             );
-            if (res.data.data === null) {
+            if (res.data.data.length === 0) {
                setSubscribed([]);
             } else {
                setSubscribed(res.data.data[0].channelDetails);
             }
          } catch (error: any) {
-            errorToast(error.response.data.message);
+            errorToast(error);
          }
       };
       if (isLoggedIn) {
