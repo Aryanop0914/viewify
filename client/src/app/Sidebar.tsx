@@ -97,7 +97,6 @@ const Sidebar = () => {
    //    });
    return (
       <>
-         <ToastContainer />
          <nav className="flex mt-5 mx-3 flex-col justify-center lg:space-x-0 lg:space-y-1">
             {items.map((item) => (
                <NavLink

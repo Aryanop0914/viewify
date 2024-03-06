@@ -21,7 +21,6 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.log("ye dalega error", error);
     throw new ApiError(401, error?.message || "Invalid access Token");
   }
 });

@@ -94,7 +94,6 @@ const UpdateProfile = () => {
       });
    return (
       <Form {...form}>
-         <ToastContainer />
          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
                control={form.control}

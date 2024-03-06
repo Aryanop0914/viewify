@@ -47,7 +47,6 @@ const VideosCard = () => {
    };
    return (
       <>
-         <ToastContainer />
          <div className="grid grid-cols-1 min-[600px]:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
             {videos
                .filter((video: any) => {

@@ -218,7 +218,6 @@ const Video = () => {
 
    return (
       <>
-         <ToastContainer />
          <div className="flex flex-row h-max">
             <div className="flex flex-col w-full lg:basis-3/5 border-0">
                <div className="mx-4 md:mx-8">

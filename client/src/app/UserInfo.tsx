@@ -137,7 +137,6 @@ const UserInfo = () => {
       });
    return (
       <div className="w-full h-screen overflow-y-auto flex justify-center">
-         <ToastContainer />
          <ResizablePanelGroup
             direction="vertical"
             className="w-full rounded-lg mx-2"

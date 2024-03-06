@@ -77,7 +77,6 @@ const Register = () => {
       });
    return (
       <>
-         <ToastContainer />
          <Form {...form}>
             <div className="w-full h-screen flex items-center justify-center">
                <div className="w-[360px] min-[470px]:w-[450px] border-2 p-8 space-y-4 rounded-xl shadow-sm">

@@ -114,7 +114,6 @@ const Navbar = () => {
       });
    return (
       <>
-         <ToastContainer />
          <header className="bg-background top-0 z-[20] mx-auto flex flex-wrap w-full items-center justify-between p-4 text-foreground ">
             <div className="flex items-center">
                <div className="flex logo h-10 w-10 items-center">

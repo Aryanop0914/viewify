@@ -51,8 +51,6 @@ const DeleteVideo = () => {
       }
    }, [isLoggedIn]);
    const deleteVideo = async (videoId: string) => {
-      console.log('hello');
-
       await axios
          .delete(`http://localhost:8000/api/v1/videos/${videoId}`)
          .then((res) => {
@@ -75,7 +73,6 @@ const DeleteVideo = () => {
    return (
       <>
          <div className="grid grid-cols-1 min-[600px]:grid-cols-2 lg:grid-cols-3">
-            <ToastContainer />
             {videos.map((video: any) => (
                <Card
                   className="border-0 shadow-none mx-auto mt-2 max-[470px]:w-full max-[600px]:w-[430px] min-[600px]:w-full"
@@ -93,7 +90,7 @@ const DeleteVideo = () => {
                         />
                      </AspectRatio>
                   </CardContent>
-                  <div className="flex p-3 items-center">
+                  <div className="p-3">
                      <CardHeader>
                         <CardTitle className="text-lg">{video.title}</CardTitle>
                         <div className="flex items-center">
@@ -107,7 +104,7 @@ const DeleteVideo = () => {
                                  {video.createdAt.slice(0, 10)}
                               </CardDescription>
                            </div>
-                           <div className="basis-1/5">
+                           <div className="basis-1/5 justify-end">
                               <Trash2
                                  strokeWidth={2}
                                  color="#ff4d4d"
