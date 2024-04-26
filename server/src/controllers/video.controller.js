@@ -1,11 +1,11 @@
 import mongoose, { isValidObjectId } from "mongoose";
 import { Video } from "../models/video.model.js";
-import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-
+import { WatchHistory } from "../models/watchHistory.model.js";
+import { User } from "../models/user.model.js";
 const getAllVideo = asyncHandler(async (req, res) => {
   // const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   const videos = await Video.aggregate([
@@ -39,10 +39,100 @@ const getAllVideo = asyncHandler(async (req, res) => {
 const getAllVideosOfUser = asyncHandler(async (req, res) => {
   // const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   const { userId } = req.params;
-  const videos = await Video.find({ owner: userId });
-  res
+  const video = await Video.aggregate([
+    {
+      $match: {
+        owner: new mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "ownerDetails",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "ownerDetails._id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "ownerDetails._id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
+    },
+    {
+      $lookup: {
+        from: "likes",
+        localField: "_id",
+        foreignField: "video",
+        as: "likedBy",
+      },
+    },
+    {
+      $addFields: {
+        subscribersCount: {
+          $size: "$subscribers",
+        },
+        channelsSubscribedToCount: {
+          $size: "$subscribedTo",
+        },
+        noOfLikes: {
+          $size: "$likedBy",
+        },
+        isLiked: {
+          $cond: {
+            if: {
+              $in: [
+                new mongoose.Types.ObjectId(req?.user?._id),
+                "$likedBy.likedBy",
+              ],
+            },
+            then: true,
+            else: false,
+          },
+        },
+        isSubscribed: {
+          $cond: {
+            if: {
+              $in: [
+                new mongoose.Types.ObjectId(req?.user?._id),
+                "$subscribers.subscriber",
+              ],
+            },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $unwind: "$ownerDetails",
+    },
+    {
+      $project: {
+        subscribers: 0,
+        subscribedTo: 0,
+        "likedBy.video": 0,
+        "likedBy.createdAt": 0,
+        "likedBy.updatedAt": 0,
+      },
+    },
+  ]);
+  if (!video) {
+    throw new ApiError(400, "Something Went Wrong While Fetching video");
+  }
+  return res
     .status(200)
-    .json(new ApiResponse(200, videos, "Videos fetched Successfully"));
+    .json(new ApiResponse(200, video, "Video Fetched Succesfully"));
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -225,7 +315,73 @@ const addViews = asyncHandler(async (req, res) => {
   );
   res.status(200).json(new ApiResponse(200, null, "Views Updated"));
 });
+const AddwatchHistory = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const { videoId } = req.params;
+  let existingWatchHistory = await User.findOne({ email });
+  if (!existingWatchHistory.watchHistory.includes(videoId)) {
+    existingWatchHistory.watchHistory.push(videoId);
+    existingWatchHistory = await existingWatchHistory.save();
+  }
+  res.status(200).json(new ApiResponse(200, null, "Watch History Updated"));
+});
+const getAllVideosOfWatchHistory = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const existingWatchHistory = await User.aggregate([
+    {
+      $match: {
+        email: "patelaryan0914@gmail.com",
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+      },
+    },
 
+    {
+      $unwind: "$watchHistory",
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "watchHistory.owner",
+        foreignField: "_id",
+        as: "watchHistory.ownerInfo",
+      },
+    },
+    {
+      $unwind: "$watchHistory.ownerInfo",
+    },
+    {
+      $group: {
+        _id: "$_id",
+        isVerified: { $first: "$isVerified" },
+        watchHistory: { $push: "$watchHistory" },
+        bio: { $first: "$bio" },
+        avatar: { $first: "$avatar" },
+        createdAt: { $first: "$createdAt" },
+        password: { $first: "$password" },
+        dob: { $first: "$dob" },
+        __v: { $first: "$__v" },
+        coverImage: { $first: "$coverImage" },
+        channelName: { $first: "$channelName" },
+        email: { $first: "$email" },
+        updatedAt: { $first: "$updatedAt" },
+        refreshToken: { $first: "$refreshToken" },
+        ownerInfo: { $first: "$watchHistory.ownerInfo" },
+      },
+    },
+  ]);
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, existingWatchHistory[0], "Watch History fetched")
+    );
+});
 export {
   getAllVideo,
   getAllVideosOfUser,
@@ -235,4 +391,6 @@ export {
   deleteVideo,
   addViews,
   togglePublishStatus,
+  AddwatchHistory,
+  getAllVideosOfWatchHistory,
 };

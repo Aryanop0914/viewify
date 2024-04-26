@@ -1,9 +1,11 @@
 import { Router } from "express";
 import {
+  AddwatchHistory,
   addViews,
   deleteVideo,
   getAllVideo,
   getAllVideosOfUser,
+  getAllVideosOfWatchHistory,
   getVideoById,
   publishAVideo,
   togglePublishStatus,
@@ -40,6 +42,8 @@ router
   .patch(verifyJWT, upload.single("thumbnail"), updateVideo);
 
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus, verifyJWT);
+router.route("/watchHistory/:videoId").post(AddwatchHistory);
+router.route("/getAllwatchHistory").post(getAllVideosOfWatchHistory);
 router.route("/addviews/:videoId").post(addViews);
 
 export default router;

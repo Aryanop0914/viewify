@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import * as z from 'zod';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
    Form,
@@ -24,7 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // import { toast } from '@/registry/new-york/ui/use-toast';
 import BeatLoader from 'react-spinners/BeatLoader';
 import axios from 'axios';
@@ -54,6 +54,11 @@ const defaultValues: Partial<ProfileFormValues> = {
 };
 
 const UpdateProfile = () => {
+   const [userinfo, setUserInfo] = useState({
+      channelName: '',
+      dob: '',
+      bio: '',
+   });
    const [loading, setLoading] = useState(false);
    const form = useForm<ProfileFormValues>({
       resolver: zodResolver(profileFormSchema),
@@ -61,10 +66,10 @@ const UpdateProfile = () => {
       mode: 'onChange',
    });
 
+   const config = {
+      withCredentials: true,
+   };
    const onSubmit = async (data: ProfileFormValues) => {
-      const config = {
-         withCredentials: true,
-      };
       setLoading(true);
       axios
          .patch(
@@ -82,6 +87,17 @@ const UpdateProfile = () => {
             errorToast(error.response.data.message);
          });
    };
+   const getUserinfo = async () => {
+      try {
+         const info = await axios.get(
+            'http://localhost:8000/api/v1/users/current-user',
+            config
+         );
+         setUserInfo(info.data.data);
+      } catch (error) {
+         console.log(error);
+      }
+   };
    const errorToast = (message: any) =>
       toast.error(`${message}`, {
          position: 'bottom-center',
@@ -92,6 +108,9 @@ const UpdateProfile = () => {
          position: 'bottom-center',
          theme: 'colored',
       });
+   useEffect(() => {
+      getUserinfo();
+   }, []);
    return (
       <Form {...form}>
          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -102,7 +121,7 @@ const UpdateProfile = () => {
                   <FormItem>
                      <FormLabel className="text-xl">Channel Name</FormLabel>
                      <FormControl>
-                        <Input placeholder="shadcn" {...field} />
+                        <Input placeholder={userinfo.channelName} {...field} />
                      </FormControl>
                      <FormDescription>
                         This is your public Channel name. It can be your real
@@ -121,7 +140,9 @@ const UpdateProfile = () => {
                      <FormLabel className="text-xl">Bio</FormLabel>
                      <FormControl>
                         <Textarea
-                           placeholder="Tell us a little bit about yourself"
+                           placeholder={
+                              userinfo.bio || 'Tell us about Yourself'
+                           }
                            className="resize-none"
                            {...field}
                         />

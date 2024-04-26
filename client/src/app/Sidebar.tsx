@@ -1,12 +1,12 @@
 import { Button, buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Settings } from 'lucide-react';
+import { Home, Settings, Airplay } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarImage, AvatarFallback } from '@radix-ui/react-avatar';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuthStore } from '@/store/authStore';
 const Subscriptions = (props: any) => {
@@ -57,6 +57,11 @@ const Sidebar = () => {
          href: '/settings',
          title: 'Settings',
          symbol: <Settings strokeWidth={2} />,
+      },
+      {
+         href: '/watchHistory',
+         title: 'Watch History',
+         symbol: <Airplay strokeWidth={2} />,
       },
    ];
 

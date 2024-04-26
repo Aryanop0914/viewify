@@ -12,11 +12,13 @@ import { Dot } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import useSearchStore from '@/store/searchStore';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuthStore } from '@/store/authStore';
 const VideosCard = () => {
    const { searchQuery } = useSearchStore();
    const navigate = useNavigate();
+   const { email } = useAuthStore();
    const [videos, setVideos] = useState([]);
    useEffect(() => {
       const getallVideos = async () => {
@@ -36,10 +38,14 @@ const VideosCard = () => {
          position: 'bottom-center',
          theme: 'colored',
       });
-   const addViews = async (videoId: string) => {
+   const addViewsandWatchHistory = async (videoId: string) => {
       try {
          await axios.post(
             `http://localhost:8000/api/v1/videos/addviews/${videoId}`
+         );
+         await axios.post(
+            `http://localhost:8000/api/v1/videos/watchHistory/${videoId}`,
+            { email }
          );
       } catch (error: any) {
          errorToast(error.response.data.message);
@@ -68,7 +74,9 @@ const VideosCard = () => {
                               src={video.thumbnail.url}
                               alt="Photo by Drew Beamer"
                               className="rounded-md object-cover h-full"
-                              onClick={() => addViews(video?._id)}
+                              onClick={() => {
+                                 addViewsandWatchHistory(video._id);
+                              }}
                            />
                         </AspectRatio>
                      </CardContent>

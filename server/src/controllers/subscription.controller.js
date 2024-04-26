@@ -58,6 +58,35 @@ const getUserIsSubscribed = asyncHandler(async (req, res) => {
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
   const { channelId } = req.params;
+  const subscribers = await Subscription.aggregate([
+    [
+      {
+        $group: {
+          _id: "$channel",
+          subscriber: { $push: "$subscriber" },
+        },
+      },
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(channelId),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "subscriber",
+          foreignField: "_id",
+          as: "subscriber",
+        },
+      },
+    ],
+  ]);
+  if (!subscribers) {
+    throw new ApiError(500, "Subscribers Not Found");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, subscribers[0], "Fetched Successfully"));
 });
 
 // controller to return channel list to which user has subscribed
@@ -84,7 +113,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     },
     {
       $match: {
-        _id: new Object(userId),
+        _id: new mongoose.Types.ObjectId(userId),
       },
     },
     {

@@ -8,68 +8,179 @@ import {
 } from '@/components/ui/resizable';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dot, Share } from 'lucide-react';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Button } from '@/components/ui/button';
 import {
    Card,
    CardContent,
    CardDescription,
+   CardFooter,
    CardHeader,
    CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-const VideoCardHorizontal = (props: any) => {
+import {
+   Dialog,
+   DialogContent,
+   DialogHeader,
+   DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+   Table,
+   TableBody,
+   TableCell,
+   TableHead,
+   TableHeader,
+   TableRow,
+} from '@/components/ui/table';
+import formatTimestamp from '@/components/dateConvert';
+
+function VideoTable(props: any) {
+   const [likes, setLikes] = useState([]);
    const videos = props.videos;
-
    const navigate = useNavigate();
-
+   const getLikesofVideo = async (videoId: String) => {
+      const res = await axios.get(
+         `http://localhost:8000/api/v1/likes/videos/${videoId}`
+      );
+      setLikes(res.data.data.likedBy);
+   };
    return (
-      <ScrollArea className="w-full whitespace-nowrap rounded-md border-0">
-         <div className="flex w-max space-x-4">
-            {videos.map((video: any) => (
-               <Card
-                  className="border-0 shadow-none p-2 mx-auto w-[300px]"
-                  key={video._id}
-               >
-                  <CardContent className="p-1">
-                     <AspectRatio
-                        ratio={16 / 9}
-                        className="bg-muted"
-                        onClick={() => {
-                           navigate(`/video/${video._id}`);
-                        }}
-                     >
-                        <img
-                           src={video.thumbnail.url}
-                           alt="Photo by Drew Beamer"
-                           className="rounded-md object-cover w-full"
-                        />
-                     </AspectRatio>
-                  </CardContent>
-                  <div className="flex mt-4 p-1 items-center">
-                     <CardHeader>
-                        <CardTitle className="text-lg text-wrap">
+      <Card>
+         <CardHeader>
+            <CardTitle>Your Videos</CardTitle>
+            <CardDescription>Manage your videos.</CardDescription>
+         </CardHeader>
+         <CardContent>
+            <Table>
+               <TableHeader>
+                  <TableRow>
+                     <TableHead className="hidden w-[100px] sm:table-cell">
+                        <span className="sr-only">img</span>
+                     </TableHead>
+                     <TableHead>Title</TableHead>
+                     <TableHead>Views</TableHead>
+                     <TableHead className="hidden md:table-cell">
+                        Likes
+                     </TableHead>
+                     <TableHead className="hidden md:table-cell">
+                        Posted on
+                     </TableHead>
+                     <TableHead>
+                        <span className="sr-only">Actions</span>
+                     </TableHead>
+                  </TableRow>
+               </TableHeader>
+               <TableBody>
+                  {videos.map((video: any) => (
+                     <TableRow key={video._id}>
+                        <TableCell className="hidden sm:table-cell">
+                           <img
+                              alt="Product img"
+                              className="aspect-square rounded-md object-cover"
+                              height="64"
+                              src={video.thumbnail.url}
+                              width="64"
+                              onClick={() => {
+                                 navigate(`/video/${video._id}`);
+                              }}
+                           />
+                        </TableCell>
+                        <TableCell className="font-medium">
                            {video.title}
-                        </CardTitle>
-                        <div className="flex items-center ">
-                           <CardDescription>
-                              {video.views} Views
-                           </CardDescription>
-                           <Dot size={20} strokeWidth={3} className="m-1" />
-                           <CardDescription>
-                              {' '}
-                              {video.description.slice(0, 31)}
-                           </CardDescription>
-                        </div>
-                     </CardHeader>
+                        </TableCell>
+                        <TableCell>{video.views}</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                           {video.noOfLikes}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                           {formatTimestamp(video.createdAt)}
+                        </TableCell>
+                        <TableCell>
+                           <Dialog>
+                              <DialogTrigger
+                                 onClick={() => {
+                                    getLikesofVideo(video._id);
+                                 }}
+                              >
+                                 View Likes
+                              </DialogTrigger>
+                              <DialogContent>
+                                 <DialogHeader>
+                                    <Card className="h-full">
+                                       <CardHeader>
+                                          <CardTitle>Likes</CardTitle>
+                                       </CardHeader>
+                                       <CardContent className="grid gap-8 mt-2">
+                                          {likes.map((like: any) => (
+                                             <div
+                                                className="flex items-center gap-4"
+                                                key={like._id}
+                                             >
+                                                <Avatar className="hidden h-9 w-9 sm:flex">
+                                                   <AvatarImage
+                                                      src={like.avatar.url}
+                                                      alt="Avatar"
+                                                   />
+                                                   <AvatarFallback>
+                                                      JL
+                                                   </AvatarFallback>
+                                                </Avatar>
+                                                <div className="grid gap-1">
+                                                   <p className="text-sm font-medium leading-none">
+                                                      {like.channelName}
+                                                   </p>
+                                                </div>
+                                                <div className="ml-auto font-medium">
+                                                   +1
+                                                </div>
+                                             </div>
+                                          ))}
+                                       </CardContent>
+                                    </Card>
+                                 </DialogHeader>
+                              </DialogContent>
+                           </Dialog>
+                        </TableCell>
+                     </TableRow>
+                  ))}
+               </TableBody>
+            </Table>
+         </CardContent>
+         <CardFooter>
+            <div className="text-xs text-muted-foreground">
+               Showing <strong>1-10</strong> of <strong>32</strong> products
+            </div>
+         </CardFooter>
+      </Card>
+   );
+}
+
+const Subscribers = (props: any) => {
+   const subscribers = props.subscribers;
+   return (
+      <Card className="h-full">
+         <CardHeader>
+            <CardTitle>Recent Subscribers</CardTitle>
+         </CardHeader>
+         <CardContent className="grid gap-8 mt-2">
+            {subscribers.map((subscriber: any) => (
+               <div className="flex items-center gap-4" key={subscriber._id}>
+                  <Avatar className="hidden h-9 w-9 sm:flex">
+                     <AvatarImage src={subscriber.avatar.url} alt="Avatar" />
+                     <AvatarFallback>JL</AvatarFallback>
+                  </Avatar>
+                  <div className="grid gap-1">
+                     <p className="text-sm font-medium leading-none">
+                        {subscriber.channelName}
+                     </p>
                   </div>
-               </Card>
+                  <div className="ml-auto font-medium">+1</div>
+               </div>
             ))}
-         </div>
-         <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+         </CardContent>
+      </Card>
    );
 };
 
@@ -78,6 +189,7 @@ const UserInfo = () => {
    const [user, setUser] = useState<any>();
    const [videos, setVideos] = useState([]);
    const [subscribed, setSubscribed] = useState<boolean | null>(null);
+   const [subscribers, setSubscribers] = useState([]);
    const config = {
       withCredentials: true,
    };
@@ -101,6 +213,11 @@ const UserInfo = () => {
                config
             );
             setVideos(videosRes.data.data);
+            const subscriber = await axios.get(
+               `http://localhost:8000/api/v1/subscriptions/subscribe/${profileId}`,
+               config
+            );
+            setSubscribers(subscriber.data.data.subscriber);
          } catch (error: any) {
             errorToast(error.response.data.message);
          }
@@ -146,7 +263,7 @@ const UserInfo = () => {
                   <AspectRatio ratio={21 / 9}>
                      <img
                         src={user?.coverImage?.url || 'default-avatar-url'}
-                        alt="Image"
+                        alt="img"
                         className="rounded-md w-full h-[220px]"
                      />
                   </AspectRatio>
@@ -192,7 +309,14 @@ const UserInfo = () => {
                      </Button>
                   </div>
                </div>
-               <VideoCardHorizontal videos={videos} />
+               <div className="flex flex-row justify-between w-full">
+                  <div className="basis-2/3 mr-4">
+                     <VideoTable videos={videos} className="w-full" />
+                  </div>
+                  <div className="basis-1/3">
+                     <Subscribers subscribers={subscribers} />
+                  </div>
+               </div>
             </ResizablePanel>
          </ResizablePanelGroup>
       </div>

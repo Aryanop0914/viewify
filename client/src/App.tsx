@@ -11,6 +11,7 @@ import Landing from './app/Landing';
 import Video from './app/Video';
 import DeleteVideo from './app/DeleteVideo';
 import UploadVideo from './app/UploadVideo';
+import WatchHistory from './app/WatchHistory';
 
 function App() {
    return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="/" element={<Home />}>
                <Route path="/" element={<Landing />}>
                   <Route index element={<VideosCard />} />
+                  <Route path="/watchHistory" element={<WatchHistory />} />
                   <Route path="/settings" element={<Settings />}>
                      <Route index element={<UpdateProfile />} />
                      <Route path="/settings/uploads" element={<Uploads />} />

@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
 import { Textarea } from '@/components/ui/textarea';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const errorToast = (message: any) =>
    toast.error(`${message}`, {
@@ -280,7 +280,7 @@ const Video = () => {
                </div>
                <div className="m-4 border-2 h-full rounded-md text-gray-500 px-4">
                   <div className="h-16 flex flex-row items-center">
-                     <div className="text-2xl">30,000 Comments</div>
+                     <div className="text-2xl">{comments.length} Comments</div>
                   </div>
                   <div className="mt-3 flex flex-row">
                      <Avatar>
