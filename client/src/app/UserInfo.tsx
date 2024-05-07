@@ -16,7 +16,6 @@ import {
    Card,
    CardContent,
    CardDescription,
-   CardFooter,
    CardHeader,
    CardTitle,
 } from '@/components/ui/card';
@@ -148,11 +147,6 @@ function VideoTable(props: any) {
                </TableBody>
             </Table>
          </CardContent>
-         <CardFooter>
-            <div className="text-xs text-muted-foreground">
-               Showing <strong>1-10</strong> of <strong>32</strong> products
-            </div>
-         </CardFooter>
       </Card>
    );
 }
@@ -253,7 +247,7 @@ const UserInfo = () => {
          theme: 'colored',
       });
    return (
-      <div className="w-full h-screen overflow-y-auto flex justify-center">
+      <div className="w-full h-[1000px] overflow-y-auto flex justify-center">
          <ResizablePanelGroup
             direction="vertical"
             className="w-full rounded-lg mx-2"
@@ -309,8 +303,8 @@ const UserInfo = () => {
                      </Button>
                   </div>
                </div>
-               <div className="flex flex-row justify-between w-full">
-                  <div className="basis-2/3 mr-4">
+               <div className="flex flex-row justify-between h-full w-full">
+                  <div className="basis-2/3 mr-4 ">
                      <VideoTable videos={videos} className="w-full" />
                   </div>
                   <div className="basis-1/3">

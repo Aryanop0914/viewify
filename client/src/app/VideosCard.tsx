@@ -20,13 +20,24 @@ const VideosCard = () => {
    const navigate = useNavigate();
    const { email } = useAuthStore();
    const [videos, setVideos] = useState([]);
+   function shuffleArray(array: any) {
+      for (let i = array.length - 1; i > 0; i--) {
+         // Generate random index
+         const j = Math.floor(Math.random() * (i + 1));
+         // Swap elements at indices i and j
+         [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+   }
+
    useEffect(() => {
       const getallVideos = async () => {
          try {
             const res = await axios.get(
                'http://localhost:8000/api/v1/videos/getallvideo'
             );
-            setVideos(res.data.data);
+            const ran = shuffleArray(res.data.data);
+            setVideos(ran);
          } catch (error: any) {
             errorToast(error.response.data.message);
          }
